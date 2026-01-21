@@ -1,0 +1,54 @@
+name: Nightly Smoke Tests
+
+on:
+  schedule:
+    # Run at 2 AM UTC every day
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  smoke-tests:
+    runs-on: ubuntu-latest
+    environment: nightly
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev,all]"
+
+      - name: Run smoke tests (mocked)
+        run: |
+          pytest -v -m "not integration" --tb=short
+
+      - name: Run integration tests
+        if: ${{ env.TRIX_API_KEY != '' }}
+        env:
+          TRIX_API_KEY: ${{ secrets.TRIX_API_KEY }}
+        run: |
+          pytest -v -m "integration" --tb=short
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Nightly smoke tests failed',
+              body: `Nightly smoke tests failed on ${new Date().toISOString()}\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              labels: ['bug', 'ci']
+            })
+
