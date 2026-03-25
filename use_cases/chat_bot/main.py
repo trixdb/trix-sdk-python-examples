@@ -13,6 +13,7 @@ Run: python main.py
 """
 
 from trix import Trix
+from trix.exceptions import NotFoundError
 from trix.types import ConsolidationStrategy
 
 
@@ -41,7 +42,7 @@ class ChatBot:
         # Initialize empty user preferences block
         try:
             self.client.agent.get_block(self.agent_id, "user_preferences")
-        except Exception:
+        except NotFoundError:
             self.client.agent.update_block(
                 agent_id=self.agent_id,
                 block_name="user_preferences",
