@@ -80,7 +80,7 @@ async def main() -> None:
         # ======================================================================
         print("\n5. Async pagination...")
         
-        paginator = await client.memories.iter(page_size=5, max_items=10)
+        paginator = client.memories.iter(page_size=5, max_items=10)
         count = 0
         async for mem in paginator:
             count += 1
