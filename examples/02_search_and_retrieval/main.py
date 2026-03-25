@@ -12,8 +12,6 @@ Run: python main.py
 """
 
 from trix import Trix
-from trix.types import SearchMode
-
 
 def main() -> None:
     """Demonstrate search and retrieval operations."""
