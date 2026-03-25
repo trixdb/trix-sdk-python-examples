@@ -86,10 +86,10 @@ def graceful_degradation(query: str) -> list[str]:
         except TrixError:
             pass  # Fall through to alternatives
         
-        # Try similar search as backup
+        # Try query search as backup
         if not results:
             try:
-                similar = client.search.similar(text=query, limit=5)
+                similar = client.search.query(query=query, limit=5)
                 results.extend([r.memory.content for r in similar.results])
             except TrixError:
                 pass
