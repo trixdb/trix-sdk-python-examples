@@ -11,7 +11,7 @@ A research assistant demonstrating:
 Run: python main.py
 """
 
-from trix import Trix
+from trix import Trix, NotFoundError
 
 
 class ResearchAssistant:
@@ -28,7 +28,7 @@ class ResearchAssistant:
         try:
             space = self.client.spaces.get_by_slug(slug)
             self.space_id = space.id
-        except Exception:
+        except NotFoundError:
             space = self.client.spaces.create(
                 name=name, slug=slug, description=f"Research project: {name}"
             )

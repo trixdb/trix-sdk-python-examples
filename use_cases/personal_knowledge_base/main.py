@@ -11,7 +11,7 @@ A personal knowledge management system demonstrating:
 Run: python main.py
 """
 
-from trix import Trix
+from trix import Trix, NotFoundError
 from trix.types import RelationshipType
 
 
@@ -28,7 +28,7 @@ class PersonalKnowledgeBase:
         try:
             space = self.client.spaces.get_by_slug(slug)
             self.space_id = space.id
-        except Exception:
+        except NotFoundError:
             space = self.client.spaces.create(
                 name="Personal Knowledge Base",
                 slug=slug,
