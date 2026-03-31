@@ -82,7 +82,7 @@ def graceful_degradation(query: str) -> list[str]:
         # Try semantic search first
         try:
             search_results = client.search.query(query=query, limit=5)
-            results.extend([r.memory.content for r in search_results.results])
+            results.extend([r.memory.content for r in search_results.data])
         except TrixError:
             pass  # Fall through to alternatives
         
@@ -90,7 +90,7 @@ def graceful_degradation(query: str) -> list[str]:
         if not results:
             try:
                 similar = client.search.query(query=query, limit=5)
-                results.extend([r.memory.content for r in similar.results])
+                results.extend([r.memory.content for r in similar.data])
             except TrixError:
                 pass
         

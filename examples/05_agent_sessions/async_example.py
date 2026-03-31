@@ -7,126 +7,81 @@ Run: python async_example.py
 
 import asyncio
 from trix import AsyncTrix
-from trix.types import ConsolidationStrategy
 
 
 async def main() -> None:
     """Demonstrate async agent session management."""
-    
+
     async with AsyncTrix.from_env() as client:
         print("=" * 60)
         print("ASYNC AGENT SESSIONS")
         print("=" * 60)
-        
+
         # ======================================================================
         # CREATE SESSION
         # ======================================================================
         print("\n1. Creating session...")
-        
+
         session = await client.agent.create_session(
-            user_id="async_user",
-            agent_id="async_assistant",
+            session_id="async_sess_123",
             metadata={"channel": "api"}
         )
-        print(f"   ✓ Created session: {session.id}")
-        
+        print(f"   Created session: {session.session_id}")
+
         # ======================================================================
-        # ADD MEMORIES CONCURRENTLY
+        # ADD MEMORIES
         # ======================================================================
         print("\n2. Adding memories...")
-        
+
         messages = [
             ("user", "What is machine learning?"),
             ("assistant", "ML is a subset of AI that learns from data."),
             ("user", "Can you give an example?"),
             ("assistant", "Image recognition is a common ML application."),
         ]
-        
+
         # Add memories (sequential for conversation order)
         for role, content in messages:
             await client.agent.add_session_memory(
-                session_id=session.id,
+                session_id=session.session_id,
                 content=content,
                 role=role,
             )
-        print(f"   ✓ Added {len(messages)} messages")
-        
+        print(f"   Added {len(messages)} messages")
+
         # ======================================================================
         # PARALLEL OPERATIONS
         # ======================================================================
         print("\n3. Parallel context and session fetch...")
-        
+
         context, session_info = await asyncio.gather(
             client.agent.get_context(
-                session_id=session.id,
                 query="What was discussed?",
+                session_id=session.session_id,
                 limit=5
             ),
-            client.agent.get_session(session.id)
+            client.agent.get_session(session.session_id)
         )
-        
+
         print(f"   Context memories: {len(context.memories)}")
-        print(f"   Session status: {session_info.status}")
-        
+        print(f"   Session retrieved")
+
         # ======================================================================
-        # CORE MEMORY MANAGEMENT
+        # END AND SUMMARIZE
         # ======================================================================
-        print("\n4. Managing core memory blocks...")
-        
-        # Update multiple blocks concurrently
-        persona_task = client.agent.update_block(
-            agent_id="async_assistant",
-            block_name="persona",
-            content="I am an ML expert assistant."
-        )
-        
-        prefs_task = client.agent.update_block(
-            agent_id="async_assistant",
-            block_name="user_prefs",
-            content="User is a beginner in ML."
-        )
-        
-        persona_block, prefs_block = await asyncio.gather(persona_task, prefs_task)
-        print(f"   ✓ Updated blocks: {persona_block.name}, {prefs_block.name}")
-        
-        # ======================================================================
-        # GET CORE MEMORY
-        # ======================================================================
-        print("\n5. Getting complete core memory...")
-        
-        core = await client.agent.get_core_memory(agent_id="async_assistant")
-        print(f"   Core memory has {len(core.blocks)} blocks:")
-        for block in core.blocks:
-            print(f"      - {block.name}: {block.content[:40]}...")
-        
-        # ======================================================================
-        # END AND CONSOLIDATE
-        # ======================================================================
-        print("\n6. Ending session with consolidation...")
-        
+        print("\n4. Ending session with summary...")
+
         ended = await client.agent.end_session(
-            session_id=session.id,
-            consolidate=True,
-            strategy=ConsolidationStrategy.SUMMARIZE
+            session_id=session.session_id,
+            summary="Discussion about machine learning concepts",
+            key_insights=["User learning about ML", "Covered image recognition"]
         )
-        print(f"   ✓ Session ended: {ended.status}")
-        
-        # ======================================================================
-        # CLEANUP
-        # ======================================================================
-        print("\n7. Cleaning up blocks...")
-        
-        await asyncio.gather(
-            client.agent.delete_block(agent_id="async_assistant", block_name="persona"),
-            client.agent.delete_block(agent_id="async_assistant", block_name="user_prefs"),
-        )
-        print("   ✓ Cleaned up")
-        
+        print(f"   Session ended")
+
         print("\n" + "=" * 60)
-        print("🎉 Async agent sessions complete!")
+        print("Async agent sessions complete!")
         print("=" * 60)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
-

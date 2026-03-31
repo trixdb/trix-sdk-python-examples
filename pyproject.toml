@@ -47,7 +47,7 @@ all = [
 [project.urls]
 Homepage = "https://trixdb.com"
 Documentation = "https://docs.trixdb.com"
-Repository = "https://github.com/trix/trix-sdk-python-examples"
+Repository = "https://github.com/trixdb/trix-sdk-python-examples"
 
 [tool.setuptools.packages.find]
 where = ["."]

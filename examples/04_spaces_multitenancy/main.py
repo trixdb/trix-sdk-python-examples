@@ -31,15 +31,13 @@ def main() -> None:
             name="Tenant A",
             slug="tenant-a",
             description="Space for Tenant A's data",
-            metadata={"plan": "enterprise", "region": "us-east"}
         )
         print(f"   ✓ Created: {tenant_a.name} ({tenant_a.slug})")
-        
+
         tenant_b = client.spaces.create(
             name="Tenant B",
             slug="tenant-b",
             description="Space for Tenant B's data",
-            metadata={"plan": "pro", "region": "eu-west"}
         )
         print(f"   ✓ Created: {tenant_b.name} ({tenant_b.slug})")
         
@@ -60,7 +58,7 @@ def main() -> None:
         
         space = client.spaces.get_by_slug("tenant-a")
         print(f"   Found: {space.name}")
-        print(f"   Metadata: {space.metadata}")
+        print(f"   Description: {space.description}")
         
         # ======================================================================
         # CREATE MEMORIES IN SPECIFIC SPACES
@@ -94,7 +92,7 @@ def main() -> None:
             space_id=tenant_a.id,
             limit=10
         )
-        print(f"   Tenant A results: {len(results_a.results)}")
+        print(f"   Tenant A results: {len(results_a.data)}")
         
         # Search only in Tenant B's space
         results_b = client.search.query(
@@ -102,7 +100,7 @@ def main() -> None:
             space_id=tenant_b.id,
             limit=10
         )
-        print(f"   Tenant B results: {len(results_b.results)}")
+        print(f"   Tenant B results: {len(results_b.data)}")
         
         # ======================================================================
         # UPDATE SPACE
@@ -112,7 +110,6 @@ def main() -> None:
         updated = client.spaces.update(
             tenant_a.id,
             description="Updated description for Tenant A",
-            metadata={"plan": "enterprise", "region": "us-east", "upgraded": True}
         )
         print(f"   ✓ Updated: {updated.description}")
         

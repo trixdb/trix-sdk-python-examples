@@ -8,6 +8,7 @@ Run: python async_example.py
 import asyncio
 from trix import AsyncTrix
 from trix.exceptions import TrixError, RateLimitError, NotFoundError
+from trix.types import MemoryCreate
 
 
 async def demonstrate_error_handling():
@@ -35,8 +36,9 @@ async def demonstrate_concurrent_with_semaphore():
     
     async with AsyncTrix.from_env() as client:
         # Create test data
-        memories = await client.memories.bulk_create([
-            {"content": f"Concurrent test {i}"} for i in range(10)
+        memories = await asyncio.gather(*[
+            client.memories.create(content=f"Concurrent test {i}")
+            for i in range(10)
         ])
         
         # Limit concurrent operations
@@ -66,15 +68,16 @@ async def demonstrate_async_iteration():
     
     async with AsyncTrix.from_env() as client:
         # Create test data
-        memories = await client.memories.bulk_create([
-            {"content": f"Async iter test {i}"} for i in range(5)
+        memories = await asyncio.gather(*[
+            client.memories.create(content=f"Async iter test {i}")
+            for i in range(5)
         ])
         
         # Async iteration
         print("\n1. Async iteration...")
         
         count = 0
-        async for memory in client.memories.iter(limit=2):
+        async for memory in await client.memories.iter(page_size=2):
             count += 1
             print(f"   - {memory.content[:30]}...")
             if count >= 5:
@@ -111,8 +114,9 @@ async def demonstrate_gather_with_exceptions():
     
     async with AsyncTrix.from_env() as client:
         # Create test data
-        memories = await client.memories.bulk_create([
-            {"content": f"Gather test {i}"} for i in range(3)
+        memories = await asyncio.gather(*[
+            client.memories.create(content=f"Gather test {i}")
+            for i in range(3)
         ])
         
         print("\n1. Gather with return_exceptions...")

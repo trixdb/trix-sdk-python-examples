@@ -23,6 +23,7 @@ from trix.exceptions import (
     ValidationError,
     ServerError,
 )
+from trix.types import MemoryCreate
 
 
 def demonstrate_error_handling():
@@ -126,21 +127,18 @@ def demonstrate_batch_operations():
         
         def chunked_create(items: list, chunk_size: int = 100):
             """Create items in chunks to avoid payload limits."""
-            results = []
+            total_success = 0
             for i in range(0, len(items), chunk_size):
                 chunk = items[i:i + chunk_size]
-                created = client.memories.bulk_create(chunk)
-                results.extend(created)
+                result = client.memories.bulk_create(chunk)
+                total_success += result.success
                 print(f"   Processed chunk {i//chunk_size + 1}")
-            return results
-        
+            return total_success
+
         # Example usage
-        large_dataset = [{"content": f"Memory {i}"} for i in range(5)]
-        memories = chunked_create(large_dataset, chunk_size=2)
-        print(f"   ✓ Created {len(memories)} memories in chunks")
-        
-        # Cleanup
-        client.memories.bulk_delete([m.id for m in memories])
+        large_dataset = [MemoryCreate(content=f"Memory {i}") for i in range(5)]
+        total = chunked_create(large_dataset, chunk_size=2)
+        print(f"   Created {total} memories in chunks")
 
 
 def demonstrate_pagination_patterns():
@@ -151,42 +149,41 @@ def demonstrate_pagination_patterns():
     
     with Trix.from_env() as client:
         # Create some test data
-        memories = client.memories.bulk_create([
-            {"content": f"Pagination test memory {i}"} for i in range(5)
-        ])
-        
-        # Manual pagination
+        for i in range(5):
+            client.memories.create(content=f"Pagination test memory {i}")
+
+        # Manual offset-based pagination
         print("\n1. Manual pagination...")
-        
-        cursor = None
+
+        offset = 0
         page = 0
         all_items = []
-        
+
         while True:
-            result = client.memories.list(limit=2, cursor=cursor)
+            result = client.memories.list(limit=2, offset=offset)
             all_items.extend(result.data)
             page += 1
             print(f"   Page {page}: {len(result.data)} items")
-            
-            if not result.pagination.has_more:
+
+            if len(result.data) < 2 or len(all_items) >= result.total:
                 break
-            cursor = result.pagination.cursor
-        
-        print(f"   ✓ Total items: {len(all_items)}")
-        
+            offset += 2
+
+        print(f"   Total items: {len(all_items)}")
+
         # Using iterator (preferred)
         print("\n2. Using iterator (recommended)...")
-        
+
         count = 0
-        for memory in client.memories.iter(limit=2):
+        for memory in client.memories.iter(page_size=2):
             count += 1
             if count >= 5:
                 break
-        
-        print(f"   ✓ Iterated through {count} items")
-        
+
+        print(f"   Iterated through {count} items")
+
         # Cleanup
-        client.memories.bulk_delete([m.id for m in memories])
+        client.memories.bulk_delete([m.id for m in all_items])
 
 
 def main():

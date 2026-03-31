@@ -12,6 +12,7 @@ Run: python main.py
 """
 
 from trix import Trix
+from trix.types import MemoryCreate
 
 def main() -> None:
     """Demonstrate search and retrieval operations."""
@@ -34,9 +35,11 @@ def main() -> None:
             "The weather today is sunny with a high of 75 degrees.",
         ]
         
-        memories = client.memories.bulk_create([
-            {"content": c, "tags": ["sample"]} for c in sample_content
-        ])
+        # Create sample memories individually (bulk_create returns BulkResult, not a list)
+        memories = []
+        for c in sample_content:
+            mem = client.memories.create(content=c, tags=["sample"])
+            memories.append(mem)
         print(f"   ✓ Created {len(memories)} sample memories")
         
         # ======================================================================
@@ -51,8 +54,8 @@ def main() -> None:
         )
         
         print(f"   Query: 'How do neural networks learn from data?'")
-        print(f"   Found {len(results.results)} results:")
-        for i, r in enumerate(results.results, 1):
+        print(f"   Found {len(results.data)} results:")
+        for i, r in enumerate(results.data, 1):
             print(f"   {i}. (score: {r.score:.3f}) {r.memory.content[:50]}...")
         
         # ======================================================================
@@ -66,7 +69,7 @@ def main() -> None:
             tags=["sample"],  # Only search in memories with this tag
         )
         
-        print(f"   Found {len(filtered_results.results)} results with 'sample' tag")
+        print(f"   Found {len(filtered_results.data)} results with 'sample' tag")
         
         # ======================================================================
         # SIMILAR - Find memories similar to a specific memory
@@ -77,12 +80,11 @@ def main() -> None:
         similar = client.search.similar(
             memory_id=ml_memory.id,
             limit=3,
-            exclude_self=True  # Don't include the source memory
         )
         
         print(f"   Finding memories similar to: '{ml_memory.content[:40]}...'")
-        print(f"   Found {len(similar.results)} similar memories:")
-        for i, r in enumerate(similar.results, 1):
+        print(f"   Found {len(similar.data)} similar memories:")
+        for i, r in enumerate(similar.data, 1):
             print(f"   {i}. (score: {r.score:.3f}) {r.memory.content[:50]}...")
         
         # ======================================================================
@@ -91,25 +93,18 @@ def main() -> None:
         print("\n5. Generating embeddings...")
         
         embedding = client.search.embed(
-            text="Machine learning is transforming technology."
+            memory_ids=[ml_memory.id]
         )
-        
-        print(f"   Generated embedding with {len(embedding.embedding)} dimensions")
-        print(f"   First 5 values: {embedding.embedding[:5]}")
-        
+
+        print(f"   Generated embeddings for {len(embedding.embeddings)} memories")
+
         # ======================================================================
         # EMBED ALL - Batch embedding generation
         # ======================================================================
         print("\n6. Batch embedding generation...")
-        
-        texts_to_embed = [
-            "First text to embed",
-            "Second text to embed",
-            "Third text to embed",
-        ]
-        
-        embeddings = client.search.embed_all(texts=texts_to_embed)
-        print(f"   Generated {len(embeddings.embeddings)} embeddings")
+
+        embed_all_result = client.search.embed_all(batch_size=100)
+        print(f"   Processed all memories in batches of 100")
         
         # ======================================================================
         # BY_TOPIC - Topic-based retrieval
@@ -122,8 +117,8 @@ def main() -> None:
         )
         
         print(f"   Topic: 'artificial intelligence'")
-        print(f"   Found {len(topic_results.results)} memories on this topic:")
-        for i, r in enumerate(topic_results.results, 1):
+        print(f"   Found {len(topic_results.data)} memories on this topic:")
+        for i, r in enumerate(topic_results.data, 1):
             print(f"   {i}. {r.memory.content[:50]}...")
         
         # ======================================================================

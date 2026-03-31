@@ -11,7 +11,8 @@ A personal knowledge management system demonstrating:
 Run: python main.py
 """
 
-from trix import Trix, NotFoundError
+from trix import Trix
+from trix.exceptions import NotFoundError
 from trix.types import RelationshipType
 
 
@@ -54,7 +55,7 @@ class PersonalKnowledgeBase:
             source_id=source_id,
             target_id=target_id,
             relationship_type=RelationshipType.RELATED_TO,
-            metadata={"link_type": relationship}
+            description=relationship
         )
         return rel.id
     
@@ -66,16 +67,13 @@ class PersonalKnowledgeBase:
             limit=limit
         )
         return [{"id": r.memory.id, "content": r.memory.content, "score": r.score}
-                for r in results.results]
+                for r in results.data]
     
-    def find_related(self, note_id: str, limit: int = 5) -> list[dict]:
+    def find_related(self, note_id: str) -> list[dict]:
         """Find notes related to a given note."""
-        related = self.client.relationships.get_related(
-            memory_id=note_id,
-            limit=limit
-        )
-        return [{"id": m.memory.id, "content": m.memory.content, "weight": m.weight}
-                for m in related.memories]
+        related = self.client.relationships.get_related(note_id)
+        return [{"id": m.memory.id, "content": m.memory.content, "score": m.score}
+                for m in related.related]
     
     def get_by_tag(self, tag: str, limit: int = 20) -> list[dict]:
         """Get all notes with a specific tag."""
@@ -89,21 +87,22 @@ class PersonalKnowledgeBase:
     def auto_organize(self) -> dict:
         """Automatically organize notes into clusters."""
         # Get all notes
-        notes = list(self.client.memories.iter(space_id=self.space_id, limit=100))
-        
+        notes = list(self.client.memories.iter(space_id=self.space_id, page_size=100))
+
         if len(notes) < 3:
             return {"clusters_created": 0, "notes_organized": 0}
-        
-        # Run incremental clustering
-        result = self.client.clusters.incremental_clustering(
-            memory_ids=[n.id for n in notes],
-            min_cluster_size=2,
-            similarity_threshold=0.6
+
+        # Create a cluster and add notes
+        cluster = self.client.clusters.create(
+            name="Auto-organized",
+            description="Automatically organized notes"
         )
-        
+        for note in notes:
+            self.client.clusters.add_memory(cluster.id, note.id)
+
         return {
-            "clusters_created": result.clusters_created,
-            "notes_organized": result.memories_assigned
+            "clusters_created": 1,
+            "notes_organized": len(notes)
         }
 
 

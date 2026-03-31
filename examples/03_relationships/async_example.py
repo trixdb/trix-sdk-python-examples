@@ -27,14 +27,14 @@ async def main() -> None:
         # ======================================================================
         print("\n1. Creating memories...")
         
-        memories = await client.memories.bulk_create([
-            {"content": "Machine Learning basics", "tags": ["ml"]},
-            {"content": "Deep Learning neural networks", "tags": ["dl"]},
-            {"content": "Natural Language Processing", "tags": ["nlp"]},
-            {"content": "Computer Vision techniques", "tags": ["cv"]},
-        ])
+        memories = await asyncio.gather(
+            client.memories.create(content="Machine Learning basics", tags=["ml"]),
+            client.memories.create(content="Deep Learning neural networks", tags=["dl"]),
+            client.memories.create(content="Natural Language Processing", tags=["nlp"]),
+            client.memories.create(content="Computer Vision techniques", tags=["cv"]),
+        )
         print(f"   ✓ Created {len(memories)} memories")
-        
+
         ml, dl, nlp, cv = memories
         
         # ======================================================================
@@ -80,12 +80,12 @@ async def main() -> None:
         incoming, outgoing, related = await asyncio.gather(
             client.relationships.get_incoming(ml.id),
             client.relationships.get_outgoing(dl.id),
-            client.relationships.get_related(ml.id, limit=5),
+            client.relationships.get_related(ml.id),
         )
-        
+
         print(f"   ML incoming: {len(incoming.data)}")
         print(f"   DL outgoing: {len(outgoing.data)}")
-        print(f"   ML related: {len(related.memories)}")
+        print(f"   ML related: {len(related.related)}")
         
         # ======================================================================
         # CONCURRENT REINFORCEMENT
@@ -93,7 +93,7 @@ async def main() -> None:
         print("\n4. Reinforcing relationships concurrently...")
         
         reinforce_tasks = [
-            client.relationships.reinforce(rel.id, amount=0.05)
+            client.relationships.reinforce(rel.id, boost=0.05)
             for rel in relationships[:2]
         ]
         

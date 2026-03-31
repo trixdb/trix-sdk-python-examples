@@ -55,9 +55,9 @@ def test_search_workflow():
     )
     
     # Mock search
-    respx.post("https://api.trixdb.com/v1/search/query").mock(
+    respx.get("https://api.trixdb.com/v1/search").mock(
         return_value=Response(200, json={
-            "results": [{
+            "data": [{
                 "memory": {
                     "id": "mem_123",
                     "content": "Python programming",
@@ -67,7 +67,7 @@ def test_search_workflow():
                 },
                 "score": 0.95
             }],
-            "total": 1
+            "query": "Python"
         })
     )
     
@@ -78,8 +78,8 @@ def test_search_workflow():
         # Search
         results = client.search.query(query="Python")
         
-        assert len(results.results) == 1
-        assert results.results[0].score == 0.95
+        assert len(results.data) == 1
+        assert results.data[0].score == 0.95
 
 
 # =============================================================================
@@ -155,25 +155,16 @@ def test_pagination():
                 {"id": "mem_1", "content": "First", "tags": [], "metadata": {}, "created_at": "2024-01-01T00:00:00Z"},
                 {"id": "mem_2", "content": "Second", "tags": [], "metadata": {}, "created_at": "2024-01-01T00:00:00Z"},
             ],
-            "has_more": True,
-            "next_cursor": "cursor_abc"
+            "total": 3,
+            "limit": 2,
+            "offset": 0,
         })
     )
-    
-    # Second page
-    respx.get("https://api.trixdb.com/v1/memories?cursor=cursor_abc").mock(
-        return_value=Response(200, json={
-            "data": [
-                {"id": "mem_3", "content": "Third", "tags": [], "metadata": {}, "created_at": "2024-01-01T00:00:00Z"},
-            ],
-            "has_more": False,
-            "next_cursor": None
-        })
-    )
-    
+
     with Trix(api_key="test-key") as client:
-        memories = list(client.memories.iter(limit=10))
-        assert len(memories) == 3
+        result = client.memories.list(limit=2)
+        assert len(result.data) == 2
+        assert result.total == 3
 
 
 # =============================================================================

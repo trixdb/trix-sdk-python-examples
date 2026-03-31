@@ -12,7 +12,7 @@ Run: python main.py
 """
 
 from trix import Trix
-from trix.types import MemoryType
+from trix.types import MemoryCreate, MemoryType
 
 
 def main() -> None:
@@ -68,12 +68,12 @@ def main() -> None:
         # ======================================================================
         print("\n4. Bulk creating memories...")
         
-        bulk_memories = client.memories.bulk_create([
-            {"content": "JavaScript powers interactive web pages.", "tags": ["javascript", "web"]},
-            {"content": "Rust provides memory safety without garbage collection.", "tags": ["rust", "systems"]},
-            {"content": "Go is designed for simplicity and concurrency.", "tags": ["go", "backend"]},
+        bulk_result = client.memories.bulk_create([
+            MemoryCreate(content="JavaScript powers interactive web pages.", tags=["javascript", "web"]),
+            MemoryCreate(content="Rust provides memory safety without garbage collection.", tags=["rust", "systems"]),
+            MemoryCreate(content="Go is designed for simplicity and concurrency.", tags=["go", "backend"]),
         ])
-        print(f"   ✓ Created {len(bulk_memories)} memories")
+        print(f"   ✓ Created {bulk_result.success} memories")
         
         # ======================================================================
         # LIST - With filtering and pagination
@@ -81,7 +81,7 @@ def main() -> None:
         print("\n5. Listing memories with pagination...")
         
         page = client.memories.list(limit=10)
-        print(f"   Found {page.pagination.total} total memories")
+        print(f"   Found {page.total} total memories")
         print(f"   This page has {len(page.data)} items")
         
         # ======================================================================
@@ -118,9 +118,11 @@ def main() -> None:
         # ======================================================================
         print("\n9. Bulk updating memories...")
         
-        updates = [{"id": m.id, "tags": m.tags + ["bulk-updated"]} for m in bulk_memories[:2]]
-        updated_memories = client.memories.bulk_update(updates)
-        print(f"   ✓ Updated {len(updated_memories)} memories")
+        # Re-list to get memory IDs for bulk update demo
+        all_mems = client.memories.list(limit=10)
+        updates = [{"id": m.id, "tags": (m.tags or []) + ["bulk-updated"]} for m in all_mems.data[:2]]
+        update_result = client.memories.bulk_update(updates)
+        print(f"   ✓ Updated {update_result.success} memories")
         
         # ======================================================================
         # CLEANUP - Delete all created memories
@@ -130,9 +132,10 @@ def main() -> None:
         # Delete single memory
         client.memories.delete(memory.id)
         
-        # Bulk delete
-        ids_to_delete = [m.id for m in bulk_memories]
-        client.memories.bulk_delete(ids_to_delete)
+        # Bulk delete remaining memories
+        remaining = client.memories.list(limit=100)
+        if remaining.data:
+            client.memories.bulk_delete([m.id for m in remaining.data])
         
         print("   ✓ All memories deleted")
         print("\n" + "=" * 60)

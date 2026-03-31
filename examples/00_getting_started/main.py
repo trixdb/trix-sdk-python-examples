@@ -76,8 +76,8 @@ def main() -> None:
                 limit=5
             )
             
-            print(f"✓ Found {len(results.results)} matching memories:")
-            for i, result in enumerate(results.results, 1):
+            print(f"✓ Found {len(results.data)} matching memories:")
+            for i, result in enumerate(results.data, 1):
                 print(f"  {i}. {result.memory.content[:60]}... (score: {result.score:.3f})")
             
             # ------------------------------------------------------------------

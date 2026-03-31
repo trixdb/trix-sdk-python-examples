@@ -74,7 +74,7 @@ async def main() -> None:
                 limit=5
             )
             
-            print(f"✓ Found {len(results.results)} results")
+            print(f"✓ Found {len(results.data)} results")
             
             # ------------------------------------------------------------------
             # Cleanup - delete all created memories

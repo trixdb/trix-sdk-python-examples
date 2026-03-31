@@ -12,7 +12,7 @@ Run: python main.py
 """
 
 from trix import Trix
-from trix.types import RelationshipType
+from trix.types import MemoryCreate, RelationshipType
 
 
 def main() -> None:
@@ -28,13 +28,14 @@ def main() -> None:
         # ======================================================================
         print("\n1. Creating memories to connect...")
         
-        memories = client.memories.bulk_create([
-            {"content": "Python is a programming language.", "tags": ["python"]},
-            {"content": "Django is a Python web framework.", "tags": ["django"]},
-            {"content": "Flask is another Python web framework.", "tags": ["flask"]},
-            {"content": "FastAPI is a modern Python API framework.", "tags": ["fastapi"]},
-        ])
-        
+        mem_data = [
+            ("Python is a programming language.", ["python"]),
+            ("Django is a Python web framework.", ["django"]),
+            ("Flask is another Python web framework.", ["flask"]),
+            ("FastAPI is a modern Python API framework.", ["fastapi"]),
+        ]
+        memories = [client.memories.create(content=c, tags=t) for c, t in mem_data]
+
         python_mem = memories[0]
         django_mem = memories[1]
         flask_mem = memories[2]
@@ -53,7 +54,6 @@ def main() -> None:
             target_id=python_mem.id,
             relationship_type=RelationshipType.RELATED_TO,
             weight=0.9,
-            metadata={"framework": True}
         )
         print(f"   ✓ Django -> Python: {rel1.id}")
         
@@ -107,7 +107,7 @@ def main() -> None:
         
         reinforced = client.relationships.reinforce(
             rel1.id,
-            amount=0.1  # Increase weight by 0.1
+            boost=0.1  # Increase weight by 0.1
         )
         print(f"   New weight: {reinforced.weight} (was {rel1.weight})")
         
@@ -127,15 +127,11 @@ def main() -> None:
         # ======================================================================
         print("\n6. Finding related memories...")
         
-        related = client.relationships.get_related(
-            memory_id=python_mem.id,
-            limit=10,
-            min_weight=0.5
-        )
-        
+        related = client.relationships.get_related(python_mem.id)
+
         print(f"   Memories related to Python:")
-        for mem in related.memories:
-            print(f"      - {mem.memory.content[:40]}... (weight: {mem.weight:.2f})")
+        for mem in related.related:
+            print(f"      - {mem.memory.content[:40]}... (score: {mem.score:.2f})")
         
         # ======================================================================
         # GET RELATIONSHIP TYPES
@@ -144,7 +140,7 @@ def main() -> None:
         
         types = client.relationships.get_types()
         print(f"   Available types:")
-        for t in types.types[:5]:
+        for t in types[:5]:
             print(f"      - {t.name}: {t.description}")
         
         # ======================================================================
@@ -155,7 +151,7 @@ def main() -> None:
         updated = client.relationships.update(
             rel3.id,
             weight=1.0,
-            metadata={"primary": True}
+            description="Primary framework relationship"
         )
         print(f"   Updated weight to: {updated.weight}")
         

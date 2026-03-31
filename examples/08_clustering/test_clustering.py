@@ -129,21 +129,6 @@ def test_add_memory_to_cluster_sync(mock_membership):
 
 
 @respx.mock
-def test_incremental_clustering_sync(mock_incremental_result):
-    """Test incremental clustering synchronously."""
-    respx.post("https://api.trixdb.com/clusters/incremental").mock(
-        return_value=Response(200, json=mock_incremental_result)
-    )
-
-    with Trix(api_key="test") as client:
-        result = client.clusters.incremental_clustering(
-            threshold=0.8
-        )
-
-        assert result.status == "completed"
-
-
-@respx.mock
 def test_expand_cluster_sync(mock_expansion):
     """Test cluster expansion synchronously."""
     respx.post("https://api.trixdb.com/clusters/cluster_123/expand").mock(

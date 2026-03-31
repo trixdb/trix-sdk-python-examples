@@ -11,7 +11,8 @@ A research assistant demonstrating:
 Run: python main.py
 """
 
-from trix import Trix, NotFoundError
+from trix import Trix
+from trix.exceptions import NotFoundError
 
 
 class ResearchAssistant:
@@ -80,7 +81,7 @@ class ResearchAssistant:
         )
         return [{"content": r.memory.content[:200], "score": r.score,
                  "source": r.memory.metadata.get("source")}
-                for r in results.results]
+                for r in results.data]
     
     def find_entity(self, name: str) -> dict | None:
         """Find an entity by name."""

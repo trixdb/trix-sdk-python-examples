@@ -64,7 +64,7 @@ async def main() -> None:
         search_results = await asyncio.gather(*search_tasks)
         
         for space, results in zip(spaces, search_results):
-            print(f"   {space.name}: {len(results.results)} results")
+            print(f"   {space.name}: {len(results.data)} results")
         
         # ======================================================================
         # CLEANUP

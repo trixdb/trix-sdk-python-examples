@@ -17,7 +17,7 @@ def iterate_all_memories():
     """Use the built-in iterator for automatic pagination."""
     with Trix.from_env() as client:
         # iter() handles pagination automatically
-        for memory in client.memories.iter(limit=100):
+        for memory in client.memories.iter(page_size=100):
             print(f"Memory: {memory.id}")
             # Process each memory...
 
@@ -29,7 +29,7 @@ def iterate_all_memories():
 async def iterate_all_memories_async():
     """Async iteration with automatic pagination."""
     async with AsyncTrix.from_env() as client:
-        async for memory in client.memories.iter(limit=100):
+        async for memory in await client.memories.iter(page_size=100):
             print(f"Memory: {memory.id}")
 
 
@@ -40,24 +40,24 @@ async def iterate_all_memories_async():
 def manual_pagination():
     """Manual pagination when you need more control."""
     with Trix.from_env() as client:
-        cursor = None
+        offset = 0
         total = 0
-        
+
         while True:
             # Fetch a page
-            page = client.memories.list(limit=50, cursor=cursor)
-            
+            page = client.memories.list(limit=50, offset=offset)
+
             # Process items
             for memory in page.data:
                 total += 1
                 print(f"Processing {memory.id}")
-            
+
             # Check for more pages
-            if not page.has_more:
+            if len(page.data) < 50 or total >= page.total:
                 break
-            
-            cursor = page.next_cursor
-        
+
+            offset += 50
+
         print(f"Processed {total} memories")
 
 
@@ -69,7 +69,7 @@ def paginate_with_filters(tag: str):
     """Paginate through filtered results."""
     with Trix.from_env() as client:
         # Filters work with iter() too
-        for memory in client.memories.iter(tags=[tag], limit=100):
+        for memory in client.memories.iter(tags=[tag], page_size=100):
             print(f"Tagged memory: {memory.content[:50]}")
 
 
@@ -82,7 +82,7 @@ def process_in_batches(batch_size: int = 50):
     with Trix.from_env() as client:
         batch = []
         
-        for memory in client.memories.iter(limit=100):
+        for memory in client.memories.iter(page_size=100):
             batch.append(memory)
             
             if len(batch) >= batch_size:
@@ -109,9 +109,9 @@ async def parallel_pagination():
     async with AsyncTrix.from_env() as client:
         # Start multiple paginated queries
         tasks = [
-            collect_all(client.memories.iter(tags=["important"])),
-            collect_all(client.memories.iter(tags=["recent"])),
-            collect_all(client.memories.iter(tags=["archived"])),
+            collect_all(await client.memories.iter(tags=["important"])),
+            collect_all(await client.memories.iter(tags=["recent"])),
+            collect_all(await client.memories.iter(tags=["archived"])),
         ]
         
         important, recent, archived = await asyncio.gather(*tasks)
@@ -136,7 +136,7 @@ def paginate_with_progress():
     with Trix.from_env() as client:
         processed = 0
         
-        for memory in client.memories.iter(limit=100):
+        for memory in client.memories.iter(page_size=100):
             processed += 1
             
             # Log progress every 100 items
@@ -155,7 +155,7 @@ def paginate_with_progress():
 def paginate_until_found(target_content: str) -> str | None:
     """Stop pagination early when target is found."""
     with Trix.from_env() as client:
-        for memory in client.memories.iter(limit=100):
+        for memory in client.memories.iter(page_size=100):
             if target_content in memory.content:
                 return memory.id
         return None

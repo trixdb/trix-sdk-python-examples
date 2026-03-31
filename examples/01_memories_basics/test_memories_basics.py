@@ -94,18 +94,18 @@ def test_bulk_operations_sync(mock_memory):
     from trix.types import MemoryCreate
 
     respx.post("https://api.trixdb.com/memories/bulk").mock(
-        return_value=Response(200, json={"data": [mock_memory, mock_memory]})
+        return_value=Response(200, json={"success": 2, "failed": 0})
     )
     respx.delete("https://api.trixdb.com/memories/bulk").mock(
         return_value=Response(204)
     )
 
     with Trix(api_key="test") as client:
-        memories = client.memories.bulk_create([
+        result = client.memories.bulk_create([
             MemoryCreate(content="Memory 1"),
             MemoryCreate(content="Memory 2"),
         ])
-        assert len(memories) == 2
+        assert result.success == 2
 
         client.memories.bulk_delete(["mem_123", "mem_456"])
 

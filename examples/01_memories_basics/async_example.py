@@ -12,7 +12,7 @@ Run: python async_example.py
 
 import asyncio
 from trix import AsyncTrix
-from trix.types import MemoryType
+from trix.types import MemoryCreate, MemoryType
 
 
 async def main() -> None:
@@ -68,19 +68,19 @@ async def main() -> None:
         # ======================================================================
         print("\n4. Async bulk create...")
         
-        bulk_memories = await client.memories.bulk_create([
-            {"content": "Async bulk item 1", "tags": ["bulk"]},
-            {"content": "Async bulk item 2", "tags": ["bulk"]},
-            {"content": "Async bulk item 3", "tags": ["bulk"]},
+        bulk_result = await client.memories.bulk_create([
+            MemoryCreate(content="Async bulk item 1", tags=["bulk"]),
+            MemoryCreate(content="Async bulk item 2", tags=["bulk"]),
+            MemoryCreate(content="Async bulk item 3", tags=["bulk"]),
         ])
-        print(f"   ✓ Bulk created {len(bulk_memories)} memories")
+        print(f"   ✓ Bulk created {bulk_result.success} memories")
         
         # ======================================================================
         # ITER - Async pagination iterator
         # ======================================================================
         print("\n5. Async pagination...")
         
-        paginator = client.memories.iter(page_size=5, max_items=10)
+        paginator = await client.memories.iter(page_size=5, max_items=10)
         count = 0
         async for mem in paginator:
             count += 1
@@ -105,7 +105,7 @@ async def main() -> None:
         # ======================================================================
         print("\n7. Cleaning up...")
         
-        all_ids = [m.id for m in memories] + [m.id for m in bulk_memories]
+        all_ids = [m.id for m in memories]
         await client.memories.bulk_delete(all_ids)
         
         print("   ✓ All memories deleted")

@@ -12,6 +12,7 @@ Run: python async_example.py
 
 import asyncio
 from trix import AsyncTrix
+from trix.types import MemoryCreate
 
 
 async def main() -> None:
@@ -27,11 +28,12 @@ async def main() -> None:
         # ======================================================================
         print("\n1. Setting up sample data...")
         
-        memories = await client.memories.bulk_create([
-            {"content": "Python is great for data analysis.", "tags": ["python"]},
-            {"content": "JavaScript powers modern web apps.", "tags": ["javascript"]},
-            {"content": "Machine learning automates predictions.", "tags": ["ml"]},
-        ])
+        # Create sample memories individually (bulk_create returns BulkResult)
+        memories = await asyncio.gather(
+            client.memories.create(content="Python is great for data analysis.", tags=["python"]),
+            client.memories.create(content="JavaScript powers modern web apps.", tags=["javascript"]),
+            client.memories.create(content="Machine learning automates predictions.", tags=["ml"]),
+        )
         print(f"   ✓ Created {len(memories)} memories")
         
         # ======================================================================
@@ -53,7 +55,7 @@ async def main() -> None:
         results = await asyncio.gather(*search_tasks)
         
         for query, result in zip(queries, results):
-            print(f"   '{query}': {len(result.results)} results")
+            print(f"   '{query}': {len(result.data)} results")
         
         # ======================================================================
         # CONCURRENT SIMILAR SEARCHES
@@ -68,17 +70,15 @@ async def main() -> None:
         similar_results = await asyncio.gather(*similar_tasks)
         
         for mem, similar in zip(memories, similar_results):
-            print(f"   Similar to '{mem.content[:25]}...': {len(similar.results)} found")
+            print(f"   Similar to '{mem.content[:25]}...': {len(similar.data)} found")
         
         # ======================================================================
         # ASYNC BATCH EMBEDDINGS
         # ======================================================================
         print("\n4. Generating embeddings...")
         
-        embeddings = await client.search.embed_all(
-            texts=["First text", "Second text", "Third text"]
-        )
-        print(f"   ✓ Generated {len(embeddings.embeddings)} embeddings")
+        embed_all_result = await client.search.embed_all(batch_size=100)
+        print(f"   ✓ Processed all memories in batches")
         
         # ======================================================================
         # PARALLEL OPERATIONS
@@ -87,11 +87,11 @@ async def main() -> None:
         
         search_result, embedding = await asyncio.gather(
             client.search.query(query="programming", limit=5),
-            client.search.embed(text="programming languages")
+            client.search.embed(memory_ids=[memories[0].id])
         )
-        
-        print(f"   Search found: {len(search_result.results)} results")
-        print(f"   Embedding dims: {len(embedding.embedding)}")
+
+        print(f"   Search found: {len(search_result.data)} results")
+        print(f"   Embedded {len(embedding.embeddings)} memories")
         
         # ======================================================================
         # TOPIC SEARCH
@@ -102,7 +102,7 @@ async def main() -> None:
             topic="software development",
             limit=5
         )
-        print(f"   Found {len(topic_results.results)} memories on topic")
+        print(f"   Found {len(topic_results.data)} memories on topic")
         
         # ======================================================================
         # CLEANUP
