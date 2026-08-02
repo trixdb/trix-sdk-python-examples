@@ -173,7 +173,7 @@ def test_trigger_enrichment():
         )
     )
 
-    from trix import EnrichmentOperation
+    from trix.types import EnrichmentOperation
 
     with Trix(api_key="test") as client:
         result = client.enrichments.enrich(

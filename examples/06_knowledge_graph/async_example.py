@@ -73,11 +73,8 @@ async def main() -> None:
         )
 
         print(f"   Traversal: {len(traversal.nodes)} nodes")
-        print(
-            f"   Neighbors: {len(neighbors.incoming)} incoming, "
-            f"{len(neighbors.outgoing)} outgoing"
-        )
-        print(f"   Graph stats: {stats.total_nodes} nodes, {stats.total_edges} edges")
+        print(f"   Neighbors: {len(neighbors.neighbors)} connections")
+        print(f"   Graph stats: {stats.node_count} nodes, {stats.edge_count} edges")
 
         # ======================================================================
         # SHORTEST PATH

@@ -131,7 +131,7 @@ def operation_with_context(memory_id: str):
 
 def bulk_with_partial_failure(contents: list[str]) -> dict:
     """Handle partial failures in bulk operations."""
-    results = {"succeeded": [], "failed": []}
+    results: dict[str, list] = {"succeeded": [], "failed": []}
 
     with Trix.from_env() as client:
         for content in contents:
