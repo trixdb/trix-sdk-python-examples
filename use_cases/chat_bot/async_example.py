@@ -6,6 +6,7 @@ Run: python async_example.py
 """
 
 import asyncio
+
 from trix import AsyncTrix
 
 
@@ -32,7 +33,7 @@ class AsyncChatBot:
             await self.client.agent.end_session(
                 session_id=self.session_id,
                 summary="Async conversation ended",
-                key_insights=["Session completed"]
+                key_insights=["Session completed"],
             )
             self.session_id = None
 
@@ -49,9 +50,7 @@ class AsyncChatBot:
         )
 
         context_task = self.client.agent.get_context(
-            query=user_message,
-            session_id=self.session_id,
-            limit=5
+            query=user_message, session_id=self.session_id, limit=5
         )
 
         _, context = await asyncio.gather(record_task, context_task)

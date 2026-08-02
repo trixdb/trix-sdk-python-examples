@@ -31,7 +31,7 @@ def main() -> None:
 
         event_types = client.webhooks.get_event_types()
 
-        print(f"   Available event types:")
+        print("   Available event types:")
         for event_type in event_types[:8]:
             print(f"      - {event_type.name}: {event_type.description}")
 
@@ -85,7 +85,7 @@ def main() -> None:
                 WebhookEvent.MEMORY_UPDATED,
                 WebhookEvent.MEMORY_DELETED,
             ],
-            name="All Memory Events"
+            name="All Memory Events",
         )
 
         print(f"   Updated events: {updated.events}")
@@ -97,7 +97,7 @@ def main() -> None:
 
         test_result = client.webhooks.test(webhook.id)
 
-        print(f"   Test result:")
+        print("   Test result:")
         print(f"      - Success: {test_result.get('success')}")
         print(f"      - Status code: {test_result.get('status_code')}")
 
@@ -106,10 +106,7 @@ def main() -> None:
         # ======================================================================
         print("\n7. Getting webhook deliveries...")
 
-        deliveries = client.webhooks.get_deliveries(
-            webhook.id,
-            limit=10
-        )
+        deliveries = client.webhooks.get_deliveries(webhook.id, limit=10)
 
         print(f"   Recent deliveries: {len(deliveries.data)}")
         for delivery in deliveries.data[:3]:
@@ -120,18 +117,12 @@ def main() -> None:
         # ======================================================================
         print("\n8. Disabling webhook...")
 
-        disabled = client.webhooks.update(
-            webhook.id,
-            active=False
-        )
+        disabled = client.webhooks.update(webhook.id, active=False)
         print(f"   Webhook active: {disabled.active}")
 
         print("\n9. Re-enabling webhook...")
 
-        enabled = client.webhooks.update(
-            webhook.id,
-            active=True
-        )
+        enabled = client.webhooks.update(webhook.id, active=True)
         print(f"   Webhook active: {enabled.active}")
 
         # ======================================================================
@@ -140,7 +131,7 @@ def main() -> None:
         print("\n10. Deleting webhook...")
 
         client.webhooks.delete(webhook.id)
-        print(f"   Deleted webhook")
+        print("   Deleted webhook")
 
         print("\n" + "=" * 60)
         print("Webhooks complete!")

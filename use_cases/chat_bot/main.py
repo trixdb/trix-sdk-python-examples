@@ -13,7 +13,6 @@ Run: python main.py
 """
 
 from trix import Trix
-from trix.exceptions import NotFoundError
 
 
 class ChatBot:
@@ -27,10 +26,7 @@ class ChatBot:
     def start_session(self, user_id: str, metadata: dict | None = None) -> str:
         """Start a new conversation session."""
         session_id = f"chat_{user_id}_{self.bot_name}"
-        session = self.client.agent.create_session(
-            session_id=session_id,
-            metadata=metadata or {}
-        )
+        session = self.client.agent.create_session(session_id=session_id, metadata=metadata or {})
         self.session_id = session.session_id
         return session.session_id
 
@@ -40,7 +36,7 @@ class ChatBot:
             self.client.agent.end_session(
                 session_id=self.session_id,
                 summary="Conversation ended",
-                key_insights=["Session completed"]
+                key_insights=["Session completed"],
             )
             self.session_id = None
 
@@ -50,9 +46,7 @@ class ChatBot:
             return []
 
         context = self.client.agent.get_context(
-            query=user_message,
-            session_id=self.session_id,
-            limit=limit
+            query=user_message, session_id=self.session_id, limit=limit
         )
 
         return [m.content for m in context.memories]
@@ -107,10 +101,7 @@ def main():
 
         # Start a session
         print("\n1. Starting session...")
-        bot.start_session(
-            user_id="user_123",
-            metadata={"channel": "cli", "language": "en"}
-        )
+        bot.start_session(user_id="user_123", metadata={"channel": "cli", "language": "en"})
         print("   Session started")
 
         # Multi-turn conversation

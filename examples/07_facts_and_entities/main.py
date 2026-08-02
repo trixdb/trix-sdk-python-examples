@@ -16,34 +16,34 @@ from trix import Trix
 
 def main() -> None:
     """Demonstrate facts and entities operations."""
-    
+
     with Trix.from_env() as client:
         print("=" * 60)
         print("FACTS AND ENTITIES")
         print("=" * 60)
-        
+
         # ======================================================================
         # CREATE ENTITIES
         # ======================================================================
         print("\n1. Creating entities...")
-        
+
         # Create some entities
         python_entity = client.entities.create(
             name="Python",
             entity_type="programming_language",
             properties={"paradigm": "multi-paradigm", "typing": "dynamic"},
-            aliases=["Python3", "Py"]
+            aliases=["Python3", "Py"],
         )
         print(f"   ✓ Created entity: {python_entity.name} ({python_entity.id})")
-        
+
         guido_entity = client.entities.create(
             name="Guido van Rossum",
             entity_type="person",
             properties={"role": "Creator of Python", "nationality": "Dutch"},
-            aliases=["Guido", "BDFL"]
+            aliases=["Guido", "BDFL"],
         )
         print(f"   ✓ Created entity: {guido_entity.name} ({guido_entity.id})")
-        
+
         # ======================================================================
         # CREATE FACTS
         # ======================================================================
@@ -55,7 +55,7 @@ def main() -> None:
             predicate="created",
             obj=python_entity.id,
             confidence=1.0,
-            metadata={"year": 1991, "source": "Wikipedia"}
+            metadata={"year": 1991, "source": "Wikipedia"},
         )
         print(f"   ✓ Created fact: {guido_entity.name} created {python_entity.name}")
 
@@ -66,28 +66,22 @@ def main() -> None:
             confidence=1.0,
         )
         print(f"   ✓ Created fact: {python_entity.name} has_feature dynamic typing")
-        
+
         # ======================================================================
         # QUERY FACTS
         # ======================================================================
         print("\n3. Querying facts...")
 
         # Query facts about Python using list with filter
-        facts = client.facts.list(
-            subject=python_entity.id,
-            limit=10
-        )
+        facts = client.facts.list(subject=python_entity.id, limit=10)
         print(f"   Facts about {python_entity.name}:")
         for fact in facts.data:
             print(f"      - {fact.predicate}: {fact.object}")
 
         # Query by predicate
-        created_facts = client.facts.list(
-            predicate="created",
-            limit=10
-        )
+        created_facts = client.facts.list(predicate="created", limit=10)
         print(f"   Facts with predicate 'created': {len(created_facts.data)}")
-        
+
         # ======================================================================
         # CREATE A MEMORY FOR EXTRACTION
         # ======================================================================
@@ -97,8 +91,7 @@ def main() -> None:
 
         # First create a memory to extract from
         extraction_memory = client.memories.create(
-            content=text,
-            metadata={"type": "extraction_demo"}
+            content=text, metadata={"type": "extraction_demo"}
         )
         print(f"   ✓ Created memory: {extraction_memory.id}")
 
@@ -107,10 +100,7 @@ def main() -> None:
         # ======================================================================
         print("\n5. Extracting entities from memory...")
 
-        extraction = client.entities.extract(
-            memory_id=extraction_memory.id,
-            save=False
-        )
+        extraction = client.entities.extract(memory_id=extraction_memory.id, save=False)
 
         print(f"   Extracted {len(extraction.entities)} entities:")
         for entity in extraction.entities:
@@ -121,24 +111,19 @@ def main() -> None:
         # ======================================================================
         print("\n6. Extracting facts from memory...")
 
-        fact_extraction = client.facts.extract(
-            memory_id=extraction_memory.id,
-            save=False
-        )
+        fact_extraction = client.facts.extract(memory_id=extraction_memory.id, save=False)
 
         print(f"   Extracted {len(fact_extraction.facts)} facts:")
         for fact in fact_extraction.facts:
             print(f"      - {fact.subject} {fact.predicate} {fact.object}")
-        
+
         # ======================================================================
         # SEARCH ENTITIES
         # ======================================================================
         print("\n7. Searching entities...")
 
         search_results = client.entities.search(
-            query="programming language",
-            entity_type="programming_language",
-            limit=5
+            query="programming language", entity_type="programming_language", limit=5
         )
 
         print(f"   Found {len(search_results.entities)} entities")
@@ -148,9 +133,7 @@ def main() -> None:
         # ======================================================================
         print("\n8. Resolving entity references...")
 
-        resolved = client.entities.resolve(
-            text="Py"
-        )
+        resolved = client.entities.resolve(text="Py")
 
         if resolved.entity:
             print(f"   'Py' resolved to: {resolved.entity.name}")
@@ -165,7 +148,7 @@ def main() -> None:
 
         print(f"   Verification result: {verification.is_verified}")
         print(f"   Confidence: {verification.confidence}")
-        
+
         # ======================================================================
         # GET ENTITY
         # ======================================================================
@@ -184,7 +167,7 @@ def main() -> None:
 
         updated = client.entities.update(
             python_entity.id,
-            properties={"paradigm": "multi-paradigm", "typing": "dynamic", "version": "3.11"}
+            properties={"paradigm": "multi-paradigm", "typing": "dynamic", "version": "3.11"},
         )
         print(f"   ✓ Updated properties: {updated.properties}")
 
@@ -195,16 +178,11 @@ def main() -> None:
 
         # Create a duplicate
         dup_entity = client.entities.create(
-            name="Python 3",
-            entity_type="programming_language",
-            properties={"version": "3.x"}
+            name="Python 3", entity_type="programming_language", properties={"version": "3.x"}
         )
 
         # Merge into primary (target_id absorbs source_id)
-        merged = client.entities.merge(
-            target_id=python_entity.id,
-            source_id=dup_entity.id
-        )
+        merged = client.entities.merge(target_id=python_entity.id, source_id=dup_entity.id)
         print(f"   ✓ Merged entities: {merged.merged_count} aliases added")
 
         # ======================================================================
@@ -226,4 +204,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

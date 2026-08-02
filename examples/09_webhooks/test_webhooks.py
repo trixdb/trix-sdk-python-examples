@@ -3,8 +3,7 @@
 import pytest
 import respx
 from httpx import Response
-
-from trix import Trix, AsyncTrix
+from trix import AsyncTrix, Trix
 
 
 @pytest.fixture
@@ -71,6 +70,7 @@ def mock_deliveries():
 # Synchronous Tests
 # =============================================================================
 
+
 @respx.mock
 def test_create_webhook_sync(mock_webhook):
     """Test creating a webhook synchronously."""
@@ -80,6 +80,7 @@ def test_create_webhook_sync(mock_webhook):
 
     with Trix(api_key="test") as client:
         from trix import WebhookEvent
+
         webhook = client.webhooks.create(
             name="Test Webhook",
             url="https://example.com/webhook",
@@ -96,10 +97,10 @@ def test_list_webhooks_sync(mock_webhook_list):
     respx.get("https://api.trixdb.com/v1/webhooks").mock(
         return_value=Response(200, json=mock_webhook_list)
     )
-    
+
     with Trix(api_key="test") as client:
         webhooks = client.webhooks.list()
-        
+
         assert len(webhooks.data) == 1
 
 
@@ -136,16 +137,17 @@ def test_get_deliveries_sync(mock_deliveries):
     respx.get("https://api.trixdb.com/v1/webhooks/wh_123/deliveries").mock(
         return_value=Response(200, json=mock_deliveries)
     )
-    
+
     with Trix(api_key="test") as client:
         deliveries = client.webhooks.get_deliveries("wh_123")
-        
+
         assert len(deliveries.data) == 1
 
 
 # =============================================================================
 # Asynchronous Tests
 # =============================================================================
+
 
 @respx.mock
 @pytest.mark.asyncio
@@ -157,6 +159,7 @@ async def test_create_webhook_async(mock_webhook):
 
     async with AsyncTrix(api_key="test") as client:
         from trix import WebhookEvent
+
         webhook = await client.webhooks.create(
             name="Test Webhook",
             url="https://example.com/webhook",
@@ -173,9 +176,8 @@ async def test_list_webhooks_async(mock_webhook_list):
     respx.get("https://api.trixdb.com/v1/webhooks").mock(
         return_value=Response(200, json=mock_webhook_list)
     )
-    
+
     async with AsyncTrix(api_key="test") as client:
         webhooks = await client.webhooks.list()
-        
-        assert len(webhooks.data) == 1
 
+        assert len(webhooks.data) == 1

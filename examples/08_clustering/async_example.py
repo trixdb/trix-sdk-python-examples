@@ -6,6 +6,7 @@ Run: python async_example.py
 """
 
 import asyncio
+
 from trix import AsyncTrix
 
 
@@ -26,18 +27,12 @@ async def main() -> None:
             client.memories.create(
                 content="Machine learning models need training data.", tags=["ml"]
             ),
-            client.memories.create(
-                content="Neural networks have multiple layers.", tags=["ml"]
-            ),
-            client.memories.create(
-                content="Deep learning is a subset of ML.", tags=["ml"]
-            ),
+            client.memories.create(content="Neural networks have multiple layers.", tags=["ml"]),
+            client.memories.create(content="Deep learning is a subset of ML.", tags=["ml"]),
             client.memories.create(
                 content="Docker containers isolate applications.", tags=["devops"]
             ),
-            client.memories.create(
-                content="Kubernetes orchestrates containers.", tags=["devops"]
-            ),
+            client.memories.create(content="Kubernetes orchestrates containers.", tags=["devops"]),
         )
 
         print(f"   Created {len(memories)} memories")
@@ -53,7 +48,7 @@ async def main() -> None:
         ]
 
         ml_cluster, devops_cluster = await asyncio.gather(*cluster_tasks)
-        print(f"   Created 2 clusters concurrently")
+        print("   Created 2 clusters concurrently")
 
         # ======================================================================
         # ADD MEMORIES CONCURRENTLY
@@ -68,7 +63,7 @@ async def main() -> None:
         ]
 
         await asyncio.gather(*add_tasks)
-        print(f"   Added all memories to clusters")
+        print("   Added all memories to clusters")
 
         # ======================================================================
         # PARALLEL CLUSTER QUERIES

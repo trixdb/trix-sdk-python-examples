@@ -3,8 +3,7 @@
 import pytest
 import respx
 from httpx import Response
-
-from trix import Trix, AsyncTrix
+from trix import AsyncTrix, Trix
 
 
 @pytest.fixture
@@ -145,6 +144,7 @@ def mock_context():
 # Synchronous Tests
 # =============================================================================
 
+
 @respx.mock
 def test_traverse_sync(mock_traversal):
     """Test graph traversal synchronously."""
@@ -164,13 +164,13 @@ def test_shortest_path_sync(mock_path):
     respx.post("https://api.trixdb.com/v1/graph/shortest-path").mock(
         return_value=Response(200, json=mock_path)
     )
-    
+
     with Trix(api_key="test") as client:
         result = client.graph.shortest_path(
             source_id="mem_1",
             target_id="mem_3",
         )
-        
+
         assert len(result.path) == 3
 
 
@@ -190,6 +190,7 @@ def test_neighbors_sync(mock_neighbors):
 # =============================================================================
 # Asynchronous Tests
 # =============================================================================
+
 
 @respx.mock
 @pytest.mark.asyncio
@@ -217,4 +218,3 @@ async def test_shortest_path_async(mock_path):
         result = await client.graph.shortest_path(source_id="mem_1", target_id="mem_3")
 
         assert len(result.path) == 3
-
