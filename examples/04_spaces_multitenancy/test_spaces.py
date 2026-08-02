@@ -34,7 +34,7 @@ def mock_space_list(mock_space):
 @respx.mock
 def test_create_space_sync(mock_space):
     """Test creating a space synchronously."""
-    respx.post("https://api.trixdb.com/spaces").mock(
+    respx.post("https://api.trixdb.com/v1/spaces").mock(
         return_value=Response(200, json=mock_space)
     )
 
@@ -51,7 +51,7 @@ def test_create_space_sync(mock_space):
 @respx.mock
 def test_get_space_sync(mock_space):
     """Test getting a space by ID synchronously."""
-    respx.get("https://api.trixdb.com/spaces/space_123").mock(
+    respx.get("https://api.trixdb.com/v1/spaces/space_123").mock(
         return_value=Response(200, json=mock_space)
     )
 
@@ -64,7 +64,7 @@ def test_get_space_sync(mock_space):
 @respx.mock
 def test_list_spaces_sync(mock_space_list):
     """Test listing spaces synchronously."""
-    respx.get("https://api.trixdb.com/spaces").mock(
+    respx.get("https://api.trixdb.com/v1/spaces").mock(
         return_value=Response(200, json=mock_space_list)
     )
     
@@ -78,7 +78,7 @@ def test_list_spaces_sync(mock_space_list):
 def test_update_space_sync(mock_space):
     """Test updating a space synchronously."""
     updated = {**mock_space, "description": "Updated description"}
-    respx.patch("https://api.trixdb.com/spaces/space_123").mock(
+    respx.patch("https://api.trixdb.com/v1/spaces/space_123").mock(
         return_value=Response(200, json=updated)
     )
     
@@ -99,7 +99,7 @@ def test_update_space_sync(mock_space):
 @pytest.mark.asyncio
 async def test_create_space_async(mock_space):
     """Test creating a space asynchronously."""
-    respx.post("https://api.trixdb.com/spaces").mock(
+    respx.post("https://api.trixdb.com/v1/spaces").mock(
         return_value=Response(200, json=mock_space)
     )
 
@@ -116,7 +116,7 @@ async def test_create_space_async(mock_space):
 @pytest.mark.asyncio
 async def test_list_spaces_async(mock_space_list):
     """Test listing spaces asynchronously."""
-    respx.get("https://api.trixdb.com/spaces").mock(
+    respx.get("https://api.trixdb.com/v1/spaces").mock(
         return_value=Response(200, json=mock_space_list)
     )
     

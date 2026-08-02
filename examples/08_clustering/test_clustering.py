@@ -66,7 +66,7 @@ def mock_expansion():
 @respx.mock
 def test_create_cluster_sync(mock_cluster):
     """Test creating a cluster synchronously."""
-    respx.post("https://api.trixdb.com/clusters").mock(
+    respx.post("https://api.trixdb.com/v1/clusters").mock(
         return_value=Response(200, json=mock_cluster)
     )
     
@@ -83,7 +83,7 @@ def test_create_cluster_sync(mock_cluster):
 @respx.mock
 def test_get_cluster_sync(mock_cluster):
     """Test getting a cluster synchronously."""
-    respx.get("https://api.trixdb.com/clusters/cluster_123").mock(
+    respx.get("https://api.trixdb.com/v1/clusters/cluster_123").mock(
         return_value=Response(200, json=mock_cluster)
     )
     
@@ -96,7 +96,7 @@ def test_get_cluster_sync(mock_cluster):
 @respx.mock
 def test_list_clusters_sync(mock_cluster_list):
     """Test listing clusters synchronously."""
-    respx.get("https://api.trixdb.com/clusters").mock(
+    respx.get("https://api.trixdb.com/v1/clusters").mock(
         return_value=Response(200, json=mock_cluster_list)
     )
     
@@ -119,7 +119,7 @@ def mock_membership():
 @respx.mock
 def test_add_memory_to_cluster_sync(mock_membership):
     """Test adding memory to cluster synchronously."""
-    respx.post("https://api.trixdb.com/clusters/cluster_123/memories/mem_1").mock(
+    respx.post("https://api.trixdb.com/v1/clusters/cluster_123/memories/mem_1").mock(
         return_value=Response(200, json=mock_membership)
     )
 
@@ -131,7 +131,7 @@ def test_add_memory_to_cluster_sync(mock_membership):
 @respx.mock
 def test_expand_cluster_sync(mock_expansion):
     """Test cluster expansion synchronously."""
-    respx.post("https://api.trixdb.com/clusters/cluster_123/expand").mock(
+    respx.post("https://api.trixdb.com/v1/clusters/cluster_123/expand").mock(
         return_value=Response(200, json=mock_expansion)
     )
 
@@ -149,7 +149,7 @@ def test_expand_cluster_sync(mock_expansion):
 @pytest.mark.asyncio
 async def test_create_cluster_async(mock_cluster):
     """Test creating a cluster asynchronously."""
-    respx.post("https://api.trixdb.com/clusters").mock(
+    respx.post("https://api.trixdb.com/v1/clusters").mock(
         return_value=Response(200, json=mock_cluster)
     )
     
@@ -163,7 +163,7 @@ async def test_create_cluster_async(mock_cluster):
 @pytest.mark.asyncio
 async def test_list_clusters_async(mock_cluster_list):
     """Test listing clusters asynchronously."""
-    respx.get("https://api.trixdb.com/clusters").mock(
+    respx.get("https://api.trixdb.com/v1/clusters").mock(
         return_value=Response(200, json=mock_cluster_list)
     )
     

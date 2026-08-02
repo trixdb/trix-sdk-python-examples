@@ -71,7 +71,7 @@ def test_query_search_sync(mock_memory):
         "limit": 5,
         "offset": 0,
     }
-    respx.get("https://api.trixdb.com/memories").mock(
+    respx.get("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(200, json=mock_list)
     )
 
@@ -84,7 +84,7 @@ def test_query_search_sync(mock_memory):
 @respx.mock
 def test_similar_search_sync(mock_search_results):
     """Test similar memories search synchronously."""
-    respx.get("https://api.trixdb.com/search/similar/mem_123").mock(
+    respx.get("https://api.trixdb.com/v1/search/similar/mem_123").mock(
         return_value=Response(200, json=mock_search_results)
     )
 
@@ -97,7 +97,7 @@ def test_similar_search_sync(mock_search_results):
 @respx.mock
 def test_embed_sync(mock_embedding):
     """Test embedding generation synchronously."""
-    respx.post("https://api.trixdb.com/search/embed").mock(
+    respx.post("https://api.trixdb.com/v1/search/embed").mock(
         return_value=Response(200, json=mock_embedding)
     )
 
@@ -110,7 +110,7 @@ def test_embed_sync(mock_embedding):
 @respx.mock
 def test_embed_all_sync(mock_embed_all):
     """Test batch embedding synchronously."""
-    respx.post("https://api.trixdb.com/search/embed-all").mock(
+    respx.post("https://api.trixdb.com/v1/search/embed-all").mock(
         return_value=Response(200, json=mock_embed_all)
     )
 
@@ -134,7 +134,7 @@ async def test_query_search_async(mock_memory):
         "limit": 5,
         "offset": 0,
     }
-    respx.get("https://api.trixdb.com/memories").mock(
+    respx.get("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(200, json=mock_list)
     )
 
@@ -148,7 +148,7 @@ async def test_query_search_async(mock_memory):
 @pytest.mark.asyncio
 async def test_embed_async(mock_embedding):
     """Test embedding generation asynchronously."""
-    respx.post("https://api.trixdb.com/search/embed").mock(
+    respx.post("https://api.trixdb.com/v1/search/embed").mock(
         return_value=Response(200, json=mock_embedding)
     )
 
