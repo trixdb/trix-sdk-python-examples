@@ -30,15 +30,9 @@ def main() -> None:
         print("\n1. Creating knowledge graph nodes...")
 
         # Create a small knowledge graph about a tech stack
-        react = client.memories.create(
-            content="React is a JavaScript UI library.", tags=["react"]
-        )
-        nextjs = client.memories.create(
-            content="Next.js is built on React.", tags=["nextjs"]
-        )
-        vercel = client.memories.create(
-            content="Vercel created Next.js.", tags=["vercel"]
-        )
+        react = client.memories.create(content="React is a JavaScript UI library.", tags=["react"])
+        nextjs = client.memories.create(content="Next.js is built on React.", tags=["nextjs"])
+        vercel = client.memories.create(content="Vercel created Next.js.", tags=["vercel"])
         javascript = client.memories.create(
             content="JavaScript is a programming language.", tags=["javascript"]
         )
@@ -91,11 +85,7 @@ def main() -> None:
         # ======================================================================
         print("\n4. Finding shortest path: Vercel -> JavaScript...")
 
-        path = client.graph.shortest_path(
-            source_id=vercel.id,
-            target_id=javascript.id,
-            max_hops=5
-        )
+        path = client.graph.shortest_path(source_id=vercel.id, target_id=javascript.id, max_hops=5)
 
         if path:
             print(f"   Path length: {len(path.path)} hops")
@@ -111,8 +101,10 @@ def main() -> None:
 
         neighbors = client.graph.neighbors(node_id=react.id)
 
-        print(f"   React has {len(neighbors.incoming)} incoming, "
-              f"{len(neighbors.outgoing)} outgoing connections")
+        print(
+            f"   React has {len(neighbors.incoming)} incoming, "
+            f"{len(neighbors.outgoing)} outgoing connections"
+        )
 
         # ======================================================================
         # EXPAND
@@ -141,9 +133,7 @@ def main() -> None:
         print("\n8. Getting graph context for a query...")
 
         context = client.graph.get_context(
-            query="web development frameworks",
-            depth=2,
-            semantic_limit=10
+            query="web development frameworks", depth=2, semantic_limit=10
         )
 
         print(f"   Context has {len(context.memories)} relevant memories")

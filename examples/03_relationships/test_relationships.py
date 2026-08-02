@@ -3,8 +3,7 @@
 import pytest
 import respx
 from httpx import Response
-
-from trix import Trix, AsyncTrix
+from trix import AsyncTrix, Trix
 
 
 @pytest.fixture
@@ -69,6 +68,7 @@ def mock_relationship_types():
 # =============================================================================
 # Synchronous Tests
 # =============================================================================
+
 
 @respx.mock
 def test_create_relationship_sync(mock_relationship):
@@ -136,6 +136,7 @@ def test_get_related_sync(mock_related_memories):
 # Asynchronous Tests
 # =============================================================================
 
+
 @respx.mock
 @pytest.mark.asyncio
 async def test_create_relationship_async(mock_relationship):
@@ -168,4 +169,3 @@ async def test_get_related_async(mock_related_memories):
         related = await client.relationships.get_related("mem_1")
 
         assert len(related.related) == 1
-

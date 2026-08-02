@@ -3,8 +3,7 @@
 import pytest
 import respx
 from httpx import Response
-
-from trix import Trix, AsyncTrix
+from trix import AsyncTrix, Trix
 
 
 @pytest.fixture
@@ -62,6 +61,7 @@ def mock_context():
 # =============================================================================
 # Synchronous Tests
 # =============================================================================
+
 
 @respx.mock
 def test_create_session_sync(mock_session):
@@ -133,6 +133,7 @@ def test_end_session_sync(mock_session):
 # =============================================================================
 # Asynchronous Tests
 # =============================================================================
+
 
 @respx.mock
 @pytest.mark.asyncio

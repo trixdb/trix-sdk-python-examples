@@ -6,22 +6,23 @@ Run: python async_example.py
 """
 
 import asyncio
+
 from trix import AsyncTrix
 
 
 async def main() -> None:
     """Demonstrate async facts and entities operations."""
-    
+
     async with AsyncTrix.from_env() as client:
         print("=" * 60)
         print("ASYNC FACTS AND ENTITIES")
         print("=" * 60)
-        
+
         # ======================================================================
         # CREATE ENTITIES CONCURRENTLY
         # ======================================================================
         print("\n1. Creating entities concurrently...")
-        
+
         entity_tasks = [
             client.entities.create(
                 name="JavaScript",
@@ -38,10 +39,10 @@ async def main() -> None:
                 entity_type="organization",
             ),
         ]
-        
+
         js, brendan, netscape = await asyncio.gather(*entity_tasks)
         print(f"   ✓ Created {3} entities concurrently")
-        
+
         # ======================================================================
         # CREATE FACTS CONCURRENTLY
         # ======================================================================
@@ -68,7 +69,7 @@ async def main() -> None:
 
         facts = await asyncio.gather(*fact_tasks)
         print(f"   ✓ Created {len(facts)} facts concurrently")
-        
+
         # ======================================================================
         # CREATE A MEMORY AND EXTRACT IN PARALLEL
         # ======================================================================
@@ -78,8 +79,7 @@ async def main() -> None:
 
         # First create a memory to extract from
         extraction_memory = await client.memories.create(
-            content=text,
-            metadata={"type": "extraction_demo"}
+            content=text, metadata={"type": "extraction_demo"}
         )
 
         # Now extract entities and facts in parallel
@@ -90,7 +90,7 @@ async def main() -> None:
 
         print(f"   Entities: {len(entity_extract.entities)}")
         print(f"   Facts: {len(fact_extract.facts)}")
-        
+
         # ======================================================================
         # PARALLEL QUERIES
         # ======================================================================
@@ -122,11 +122,13 @@ async def main() -> None:
 
         await asyncio.gather(*[client.facts.delete(f.id) for f in facts])
         await client.memories.delete(extraction_memory.id)
-        await asyncio.gather(*[
-            client.entities.delete(js.id),
-            client.entities.delete(brendan.id),
-            client.entities.delete(netscape.id),
-        ])
+        await asyncio.gather(
+            *[
+                client.entities.delete(js.id),
+                client.entities.delete(brendan.id),
+                client.entities.delete(netscape.id),
+            ]
+        )
 
         print("   ✓ Cleaned up")
         print("\n" + "=" * 60)
@@ -136,4 +138,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-

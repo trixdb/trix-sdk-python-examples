@@ -6,6 +6,7 @@ Run: python async_example.py
 """
 
 import asyncio
+
 from trix import AsyncTrix
 from trix.types import RelationshipType
 
@@ -38,16 +39,22 @@ async def main() -> None:
 
         edge_tasks = [
             client.relationships.create(
-                source_id=django.id, target_id=python.id,
-                relationship_type=RelationshipType.RELATED_TO, weight=0.95
+                source_id=django.id,
+                target_id=python.id,
+                relationship_type=RelationshipType.RELATED_TO,
+                weight=0.95,
             ),
             client.relationships.create(
-                source_id=django.id, target_id=postgres.id,
-                relationship_type=RelationshipType.RELATED_TO, weight=0.8
+                source_id=django.id,
+                target_id=postgres.id,
+                relationship_type=RelationshipType.RELATED_TO,
+                weight=0.8,
             ),
             client.relationships.create(
-                source_id=django.id, target_id=redis.id,
-                relationship_type=RelationshipType.RELATED_TO, weight=0.7
+                source_id=django.id,
+                target_id=redis.id,
+                relationship_type=RelationshipType.RELATED_TO,
+                weight=0.7,
             ),
         ]
 
@@ -66,8 +73,10 @@ async def main() -> None:
         )
 
         print(f"   Traversal: {len(traversal.nodes)} nodes")
-        print(f"   Neighbors: {len(neighbors.incoming)} incoming, "
-              f"{len(neighbors.outgoing)} outgoing")
+        print(
+            f"   Neighbors: {len(neighbors.incoming)} incoming, "
+            f"{len(neighbors.outgoing)} outgoing"
+        )
         print(f"   Graph stats: {stats.total_nodes} nodes, {stats.total_edges} edges")
 
         # ======================================================================
@@ -76,9 +85,7 @@ async def main() -> None:
         print("\n4. Finding shortest path: Python -> PostgreSQL...")
 
         path = await client.graph.shortest_path(
-            source_id=python.id,
-            target_id=postgres.id,
-            max_hops=5
+            source_id=python.id, target_id=postgres.id, max_hops=5
         )
 
         if path:

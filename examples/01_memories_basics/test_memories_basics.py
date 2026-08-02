@@ -3,8 +3,7 @@
 import pytest
 import respx
 from httpx import Response
-
-from trix import Trix, AsyncTrix
+from trix import AsyncTrix, Trix
 
 
 @pytest.fixture
@@ -50,6 +49,7 @@ def mock_config():
 # Synchronous Tests
 # =============================================================================
 
+
 @respx.mock
 def test_memory_crud_sync(mock_memory):
     """Test full CRUD cycle synchronously."""
@@ -67,23 +67,21 @@ def test_memory_crud_sync(mock_memory):
         return_value=Response(200, json=updated_memory)
     )
     # Delete
-    respx.delete("https://api.trixdb.com/v1/memories/mem_123").mock(
-        return_value=Response(204)
-    )
-    
+    respx.delete("https://api.trixdb.com/v1/memories/mem_123").mock(return_value=Response(204))
+
     with Trix(api_key="test") as client:
         # Create
         created = client.memories.create(content="Test content")
         assert created.id == "mem_123"
-        
+
         # Read
         retrieved = client.memories.get("mem_123")
         assert retrieved.content == "Test content"
-        
+
         # Update
         updated = client.memories.update("mem_123", tags=["test", "updated"])
         assert "updated" in updated.tags
-        
+
         # Delete
         client.memories.delete("mem_123")
 
@@ -101,10 +99,12 @@ def test_bulk_operations_sync(mock_memory):
     )
 
     with Trix(api_key="test") as client:
-        result = client.memories.bulk_create([
-            MemoryCreate(content="Memory 1"),
-            MemoryCreate(content="Memory 2"),
-        ])
+        result = client.memories.bulk_create(
+            [
+                MemoryCreate(content="Memory 1"),
+                MemoryCreate(content="Memory 2"),
+            ]
+        )
         assert result.success == 2
 
         client.memories.bulk_delete(["mem_123", "mem_456"])
@@ -122,14 +122,14 @@ def test_list_and_stats_sync(mock_memory_list, mock_stats, mock_config):
     respx.get("https://api.trixdb.com/v1/memories/config").mock(
         return_value=Response(200, json=mock_config)
     )
-    
+
     with Trix(api_key="test") as client:
         page = client.memories.list(limit=10)
         assert len(page.data) == 1
-        
+
         stats = client.memories.get_stats()
         assert stats.total == 100
-        
+
         config = client.memories.get_config()
         assert config.max_content_length == 10000
 
@@ -137,6 +137,7 @@ def test_list_and_stats_sync(mock_memory_list, mock_stats, mock_config):
 # =============================================================================
 # Asynchronous Tests
 # =============================================================================
+
 
 @respx.mock
 @pytest.mark.asyncio
@@ -148,16 +149,13 @@ async def test_memory_crud_async(mock_memory):
     respx.get("https://api.trixdb.com/v1/memories/mem_123").mock(
         return_value=Response(200, json=mock_memory)
     )
-    respx.delete("https://api.trixdb.com/v1/memories/mem_123").mock(
-        return_value=Response(204)
-    )
-    
+    respx.delete("https://api.trixdb.com/v1/memories/mem_123").mock(return_value=Response(204))
+
     async with AsyncTrix(api_key="test") as client:
         created = await client.memories.create(content="Test content")
         assert created.id == "mem_123"
-        
+
         retrieved = await client.memories.get("mem_123")
         assert retrieved.content == "Test content"
-        
-        await client.memories.delete("mem_123")
 
+        await client.memories.delete("mem_123")

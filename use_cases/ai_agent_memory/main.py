@@ -29,8 +29,7 @@ class AgentMemory:
     def start_task(self, task_description: str) -> str:
         """Start a new task/session."""
         session = self.client.agent.create_session(
-            session_id=f"task_{self.agent_id}",
-            metadata={"task": task_description}
+            session_id=f"task_{self.agent_id}", metadata={"task": task_description}
         )
         self.session_id = session.session_id
         return session.session_id
@@ -41,10 +40,7 @@ class AgentMemory:
             raise ValueError("No active session")
 
         mem = self.client.agent.add_session_memory(
-            session_id=self.session_id,
-            content=content,
-            role="system",
-            importance=importance
+            session_id=self.session_id, content=content, role="system", importance=importance
         )
         return mem.id
 
@@ -54,9 +50,7 @@ class AgentMemory:
             return []
 
         context = self.client.agent.get_context(
-            query=query,
-            session_id=self.session_id,
-            limit=limit
+            query=query, session_id=self.session_id, limit=limit
         )
         return [m.content for m in context.memories]
 
@@ -66,7 +60,7 @@ class AgentMemory:
             self.client.agent.end_session(
                 session_id=self.session_id,
                 summary="Task completed",
-                key_insights=["Task finished successfully"]
+                key_insights=["Task finished successfully"],
             )
             self.session_id = None
 
@@ -79,33 +73,27 @@ class AgentMemory:
         memory = self.client.memories.create(
             content=experience,
             tags=["episodic", emotion] if emotion else ["episodic"],
-            metadata={"type": "episodic", "emotion": emotion}
+            metadata={"type": "episodic", "emotion": emotion},
         )
         return memory.id
 
     def store_semantic(self, fact: str, topic: str) -> str:
         """Store a semantic memory (fact/knowledge)."""
         memory = self.client.memories.create(
-            content=fact,
-            tags=["semantic", topic],
-            metadata={"type": "semantic", "topic": topic}
+            content=fact, tags=["semantic", topic], metadata={"type": "semantic", "topic": topic}
         )
         return memory.id
 
-    def recall(self, query: str, memory_type: str | None = None,
-               limit: int = 10) -> list[dict]:
+    def recall(self, query: str, memory_type: str | None = None, limit: int = 10) -> list[dict]:
         """Recall memories by query and optional type."""
         tags = [memory_type] if memory_type else None
 
-        results = self.client.search.query(
-            query=query,
-            tags=tags,
-            limit=limit
-        )
+        results = self.client.search.query(query=query, tags=tags, limit=limit)
 
-        return [{"content": r.memory.content, "score": r.score,
-                 "type": r.memory.metadata.get("type")}
-                for r in results.data]
+        return [
+            {"content": r.memory.content, "score": r.score, "type": r.memory.metadata.get("type")}
+            for r in results.data
+        ]
 
 
 def main():
@@ -133,8 +121,7 @@ def main():
         # Store episodic memory
         print("\n2. Storing episodic memory...")
         ep_id = agent.store_episodic(
-            "User asked about Python and seemed excited to learn.",
-            emotion="positive"
+            "User asked about Python and seemed excited to learn.", emotion="positive"
         )
         mem_ids.append(ep_id)
         print("   Stored episodic memory")

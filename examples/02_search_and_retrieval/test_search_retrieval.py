@@ -3,8 +3,7 @@
 import pytest
 import respx
 from httpx import Response
-
-from trix import Trix, AsyncTrix
+from trix import AsyncTrix, Trix
 
 
 @pytest.fixture
@@ -62,6 +61,7 @@ def mock_search_config():
 # Synchronous Tests
 # =============================================================================
 
+
 @respx.mock
 def test_query_search_sync(mock_memory):
     """Test semantic query search synchronously."""
@@ -71,9 +71,7 @@ def test_query_search_sync(mock_memory):
         "limit": 5,
         "offset": 0,
     }
-    respx.get("https://api.trixdb.com/v1/memories").mock(
-        return_value=Response(200, json=mock_list)
-    )
+    respx.get("https://api.trixdb.com/v1/memories").mock(return_value=Response(200, json=mock_list))
 
     with Trix(api_key="test") as client:
         results = client.memories.list(q="machine learning", limit=5)
@@ -124,6 +122,7 @@ def test_embed_all_sync(mock_embed_all):
 # Asynchronous Tests
 # =============================================================================
 
+
 @respx.mock
 @pytest.mark.asyncio
 async def test_query_search_async(mock_memory):
@@ -134,9 +133,7 @@ async def test_query_search_async(mock_memory):
         "limit": 5,
         "offset": 0,
     }
-    respx.get("https://api.trixdb.com/v1/memories").mock(
-        return_value=Response(200, json=mock_list)
-    )
+    respx.get("https://api.trixdb.com/v1/memories").mock(return_value=Response(200, json=mock_list))
 
     async with AsyncTrix(api_key="test") as client:
         results = await client.memories.list(q="machine learning", limit=5)
@@ -156,4 +153,3 @@ async def test_embed_async(mock_embedding):
         result = await client.search.embed(memory_ids=["mem_123"])
 
         assert len(result.embeddings) == 1
-
