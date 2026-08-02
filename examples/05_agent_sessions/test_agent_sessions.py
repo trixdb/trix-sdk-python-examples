@@ -66,7 +66,7 @@ def mock_context():
 @respx.mock
 def test_create_session_sync(mock_session):
     """Test creating a session synchronously."""
-    respx.post("https://api.trixdb.com/agent/sessions").mock(
+    respx.post("https://api.trixdb.com/v1/agent/sessions").mock(
         return_value=Response(200, json=mock_session)
     )
 
@@ -82,7 +82,7 @@ def test_create_session_sync(mock_session):
 @respx.mock
 def test_add_session_memory_sync(mock_session_memory):
     """Test adding a session memory synchronously."""
-    respx.post("https://api.trixdb.com/agent/sessions/sess_123/memories").mock(
+    respx.post("https://api.trixdb.com/v1/agent/sessions/sess_123/memories").mock(
         return_value=Response(200, json=mock_session_memory)
     )
 
@@ -99,7 +99,7 @@ def test_add_session_memory_sync(mock_session_memory):
 @respx.mock
 def test_get_context_sync(mock_context):
     """Test getting context synchronously."""
-    respx.post("https://api.trixdb.com/agent/context").mock(
+    respx.post("https://api.trixdb.com/v1/agent/context").mock(
         return_value=Response(200, json=mock_context)
     )
 
@@ -116,7 +116,7 @@ def test_get_context_sync(mock_context):
 def test_end_session_sync(mock_session):
     """Test ending a session synchronously."""
     ended = {**mock_session, "ended_at": "2026-01-21T01:00:00Z", "summary": "Test summary"}
-    respx.post("https://api.trixdb.com/agent/sessions/sess_123/end").mock(
+    respx.post("https://api.trixdb.com/v1/agent/sessions/sess_123/end").mock(
         return_value=Response(200, json=ended)
     )
 
@@ -138,7 +138,7 @@ def test_end_session_sync(mock_session):
 @pytest.mark.asyncio
 async def test_create_session_async(mock_session):
     """Test creating a session asynchronously."""
-    respx.post("https://api.trixdb.com/agent/sessions").mock(
+    respx.post("https://api.trixdb.com/v1/agent/sessions").mock(
         return_value=Response(200, json=mock_session)
     )
 
@@ -156,7 +156,7 @@ async def test_create_session_async(mock_session):
 async def test_end_session_async(mock_session):
     """Test ending a session asynchronously."""
     ended = {**mock_session, "ended_at": "2026-01-21T01:00:00Z"}
-    respx.post("https://api.trixdb.com/agent/sessions/sess_123/end").mock(
+    respx.post("https://api.trixdb.com/v1/agent/sessions/sess_123/end").mock(
         return_value=Response(200, json=ended)
     )
 

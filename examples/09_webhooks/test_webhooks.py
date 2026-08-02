@@ -74,7 +74,7 @@ def mock_deliveries():
 @respx.mock
 def test_create_webhook_sync(mock_webhook):
     """Test creating a webhook synchronously."""
-    respx.post("https://api.trixdb.com/webhooks").mock(
+    respx.post("https://api.trixdb.com/v1/webhooks").mock(
         return_value=Response(200, json=mock_webhook)
     )
 
@@ -93,7 +93,7 @@ def test_create_webhook_sync(mock_webhook):
 @respx.mock
 def test_list_webhooks_sync(mock_webhook_list):
     """Test listing webhooks synchronously."""
-    respx.get("https://api.trixdb.com/webhooks").mock(
+    respx.get("https://api.trixdb.com/v1/webhooks").mock(
         return_value=Response(200, json=mock_webhook_list)
     )
     
@@ -106,7 +106,7 @@ def test_list_webhooks_sync(mock_webhook_list):
 @respx.mock
 def test_get_event_types_sync(mock_event_types):
     """Test getting event types synchronously."""
-    respx.get("https://api.trixdb.com/webhooks/event-types").mock(
+    respx.get("https://api.trixdb.com/v1/webhooks/event-types").mock(
         return_value=Response(200, json=mock_event_types)
     )
 
@@ -119,7 +119,7 @@ def test_get_event_types_sync(mock_event_types):
 @respx.mock
 def test_test_webhook_sync(mock_test_result):
     """Test testing a webhook synchronously."""
-    respx.post("https://api.trixdb.com/webhooks/wh_123/test").mock(
+    respx.post("https://api.trixdb.com/v1/webhooks/wh_123/test").mock(
         return_value=Response(200, json=mock_test_result)
     )
 
@@ -133,7 +133,7 @@ def test_test_webhook_sync(mock_test_result):
 @respx.mock
 def test_get_deliveries_sync(mock_deliveries):
     """Test getting deliveries synchronously."""
-    respx.get("https://api.trixdb.com/webhooks/wh_123/deliveries").mock(
+    respx.get("https://api.trixdb.com/v1/webhooks/wh_123/deliveries").mock(
         return_value=Response(200, json=mock_deliveries)
     )
     
@@ -151,7 +151,7 @@ def test_get_deliveries_sync(mock_deliveries):
 @pytest.mark.asyncio
 async def test_create_webhook_async(mock_webhook):
     """Test creating a webhook asynchronously."""
-    respx.post("https://api.trixdb.com/webhooks").mock(
+    respx.post("https://api.trixdb.com/v1/webhooks").mock(
         return_value=Response(200, json=mock_webhook)
     )
 
@@ -170,7 +170,7 @@ async def test_create_webhook_async(mock_webhook):
 @pytest.mark.asyncio
 async def test_list_webhooks_async(mock_webhook_list):
     """Test listing webhooks asynchronously."""
-    respx.get("https://api.trixdb.com/webhooks").mock(
+    respx.get("https://api.trixdb.com/v1/webhooks").mock(
         return_value=Response(200, json=mock_webhook_list)
     )
     

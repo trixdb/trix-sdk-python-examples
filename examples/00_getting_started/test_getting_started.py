@@ -38,7 +38,7 @@ def mock_memory():
 def test_create_memory_sync(mock_memory):
     """Test creating a memory synchronously."""
     # Setup mock
-    respx.post("https://api.trixdb.com/memories").mock(
+    respx.post("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(200, json=mock_memory)
     )
     
@@ -61,7 +61,7 @@ def test_search_memories_sync(mock_memory):
         "limit": 5,
         "offset": 0,
     }
-    respx.get("https://api.trixdb.com/memories").mock(
+    respx.get("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(200, json=mock_list)
     )
 
@@ -80,7 +80,7 @@ def test_search_memories_sync(mock_memory):
 @pytest.mark.asyncio
 async def test_create_memory_async(mock_memory):
     """Test creating a memory asynchronously."""
-    respx.post("https://api.trixdb.com/memories").mock(
+    respx.post("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(200, json=mock_memory)
     )
     
@@ -104,7 +104,7 @@ async def test_search_memories_async(mock_memory):
         "limit": 5,
         "offset": 0,
     }
-    respx.get("https://api.trixdb.com/memories").mock(
+    respx.get("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(200, json=mock_list)
     )
 

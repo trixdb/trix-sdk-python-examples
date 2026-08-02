@@ -75,7 +75,7 @@ def test_create_relationship_sync(mock_relationship):
     """Test creating a relationship synchronously."""
     from trix.types import RelationshipType
 
-    respx.post("https://api.trixdb.com/relationships/mem_1/create/mem_2").mock(
+    respx.post("https://api.trixdb.com/v1/relationships/mem_1").mock(
         return_value=Response(200, json=mock_relationship)
     )
 
@@ -93,7 +93,7 @@ def test_create_relationship_sync(mock_relationship):
 @respx.mock
 def test_get_incoming_sync(mock_relationship_list):
     """Test getting incoming relationships synchronously."""
-    respx.get("https://api.trixdb.com/relationships/mem_1/incoming").mock(
+    respx.get("https://api.trixdb.com/v1/relationships/mem_1/incoming").mock(
         return_value=Response(200, json=mock_relationship_list)
     )
 
@@ -107,7 +107,7 @@ def test_get_incoming_sync(mock_relationship_list):
 def test_reinforce_sync(mock_relationship):
     """Test reinforcing a relationship synchronously."""
     reinforced = {**mock_relationship, "weight": 1.0, "reinforcement_count": 1}
-    respx.post("https://api.trixdb.com/relationships/rel_123/reinforce").mock(
+    respx.post("https://api.trixdb.com/v1/relationships/rel_123/reinforce").mock(
         return_value=Response(200, json=reinforced)
     )
 
@@ -121,7 +121,7 @@ def test_reinforce_sync(mock_relationship):
 @respx.mock
 def test_get_related_sync(mock_related_memories):
     """Test getting related memories synchronously."""
-    respx.get("https://api.trixdb.com/relationships/mem_1/related").mock(
+    respx.get("https://api.trixdb.com/v1/relationships/mem_1/related").mock(
         return_value=Response(200, json=mock_related_memories)
     )
 
@@ -142,7 +142,7 @@ async def test_create_relationship_async(mock_relationship):
     """Test creating a relationship asynchronously."""
     from trix.types import RelationshipType
 
-    respx.post("https://api.trixdb.com/relationships/mem_1/create/mem_2").mock(
+    respx.post("https://api.trixdb.com/v1/relationships/mem_1").mock(
         return_value=Response(200, json=mock_relationship)
     )
 
@@ -160,7 +160,7 @@ async def test_create_relationship_async(mock_relationship):
 @pytest.mark.asyncio
 async def test_get_related_async(mock_related_memories):
     """Test getting related memories asynchronously."""
-    respx.get("https://api.trixdb.com/relationships/mem_1/related").mock(
+    respx.get("https://api.trixdb.com/v1/relationships/mem_1/related").mock(
         return_value=Response(200, json=mock_related_memories)
     )
 

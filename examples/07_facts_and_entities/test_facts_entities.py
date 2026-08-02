@@ -78,7 +78,7 @@ def mock_entity_search(mock_entity):
 @respx.mock
 def test_create_entity_sync(mock_entity):
     """Test creating an entity synchronously."""
-    respx.post("https://api.trixdb.com/entities").mock(
+    respx.post("https://api.trixdb.com/v1/entities").mock(
         return_value=Response(200, json=mock_entity)
     )
     
@@ -95,7 +95,7 @@ def test_create_entity_sync(mock_entity):
 @respx.mock
 def test_create_fact_sync(mock_fact):
     """Test creating a fact synchronously."""
-    respx.post("https://api.trixdb.com/facts").mock(
+    respx.post("https://api.trixdb.com/v1/facts").mock(
         return_value=Response(200, json=mock_fact)
     )
 
@@ -112,7 +112,7 @@ def test_create_fact_sync(mock_fact):
 @respx.mock
 def test_list_facts_sync(mock_fact_list):
     """Test listing facts synchronously."""
-    respx.get("https://api.trixdb.com/facts").mock(
+    respx.get("https://api.trixdb.com/v1/facts").mock(
         return_value=Response(200, json=mock_fact_list)
     )
 
@@ -125,7 +125,7 @@ def test_list_facts_sync(mock_fact_list):
 @respx.mock
 def test_list_entities_sync(mock_entity_list):
     """Test listing entities synchronously."""
-    respx.get("https://api.trixdb.com/entities").mock(
+    respx.get("https://api.trixdb.com/v1/entities").mock(
         return_value=Response(200, json=mock_entity_list)
     )
 
@@ -143,7 +143,7 @@ def test_list_entities_sync(mock_entity_list):
 @pytest.mark.asyncio
 async def test_create_entity_async(mock_entity):
     """Test creating an entity asynchronously."""
-    respx.post("https://api.trixdb.com/entities").mock(
+    respx.post("https://api.trixdb.com/v1/entities").mock(
         return_value=Response(200, json=mock_entity)
     )
     
@@ -160,7 +160,7 @@ async def test_create_entity_async(mock_entity):
 @pytest.mark.asyncio
 async def test_search_entities_async(mock_entity_search):
     """Test searching entities asynchronously."""
-    respx.post("https://api.trixdb.com/entities/search").mock(
+    respx.post("https://api.trixdb.com/v1/entities/search").mock(
         return_value=Response(200, json=mock_entity_search)
     )
 

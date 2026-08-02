@@ -148,7 +148,7 @@ def mock_context():
 @respx.mock
 def test_traverse_sync(mock_traversal):
     """Test graph traversal synchronously."""
-    respx.post("https://api.trixdb.com/graph/traverse").mock(
+    respx.post("https://api.trixdb.com/v1/graph/traverse").mock(
         return_value=Response(200, json=mock_traversal)
     )
 
@@ -161,7 +161,7 @@ def test_traverse_sync(mock_traversal):
 @respx.mock
 def test_shortest_path_sync(mock_path):
     """Test shortest path synchronously."""
-    respx.post("https://api.trixdb.com/graph/shortest-path").mock(
+    respx.post("https://api.trixdb.com/v1/graph/shortest-path").mock(
         return_value=Response(200, json=mock_path)
     )
     
@@ -177,7 +177,7 @@ def test_shortest_path_sync(mock_path):
 @respx.mock
 def test_neighbors_sync(mock_neighbors):
     """Test getting neighbors synchronously."""
-    respx.get("https://api.trixdb.com/graph/neighbors/mem_1").mock(
+    respx.get("https://api.trixdb.com/v1/graph/neighbors/mem_1").mock(
         return_value=Response(200, json=mock_neighbors)
     )
 
@@ -195,7 +195,7 @@ def test_neighbors_sync(mock_neighbors):
 @pytest.mark.asyncio
 async def test_traverse_async(mock_traversal):
     """Test graph traversal asynchronously."""
-    respx.post("https://api.trixdb.com/graph/traverse").mock(
+    respx.post("https://api.trixdb.com/v1/graph/traverse").mock(
         return_value=Response(200, json=mock_traversal)
     )
 
@@ -209,7 +209,7 @@ async def test_traverse_async(mock_traversal):
 @pytest.mark.asyncio
 async def test_shortest_path_async(mock_path):
     """Test shortest path asynchronously."""
-    respx.post("https://api.trixdb.com/graph/shortest-path").mock(
+    respx.post("https://api.trixdb.com/v1/graph/shortest-path").mock(
         return_value=Response(200, json=mock_path)
     )
 

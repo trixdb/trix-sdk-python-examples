@@ -20,7 +20,7 @@ from trix.exceptions import (
 @respx.mock
 def test_not_found_error():
     """Test NotFoundError is raised correctly."""
-    respx.get("https://api.trixdb.com/memories/nonexistent").mock(
+    respx.get("https://api.trixdb.com/v1/memories/nonexistent").mock(
         return_value=Response(404, json={
             "error": {"message": "Memory not found", "code": "not_found"}
         })
@@ -36,7 +36,7 @@ def test_not_found_error():
 @respx.mock
 def test_validation_error():
     """Test ValidationError is raised correctly."""
-    respx.post("https://api.trixdb.com/memories").mock(
+    respx.post("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(422, json={
             "error": {
                 "message": "Validation failed",
@@ -56,7 +56,7 @@ def test_validation_error():
 @respx.mock
 def test_rate_limit_error():
     """Test RateLimitError is raised correctly."""
-    respx.get("https://api.trixdb.com/memories").mock(
+    respx.get("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(
             429,
             json={"error": {"message": "Rate limit exceeded"}},
@@ -75,7 +75,7 @@ def test_rate_limit_error():
 @respx.mock
 def test_authentication_error():
     """Test AuthenticationError is raised correctly."""
-    respx.get("https://api.trixdb.com/memories").mock(
+    respx.get("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(401, json={
             "error": {"message": "Invalid API key"}
         })
@@ -96,7 +96,7 @@ def test_authentication_error():
 def test_manual_pagination():
     """Test manual pagination handling."""
     # First page
-    respx.get("https://api.trixdb.com/memories").mock(
+    respx.get("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(200, json={
             "data": [{
                 "id": "mem_1",
@@ -130,7 +130,7 @@ def test_manual_pagination():
 @pytest.mark.asyncio
 async def test_async_not_found_error():
     """Test NotFoundError in async context."""
-    respx.get("https://api.trixdb.com/memories/nonexistent").mock(
+    respx.get("https://api.trixdb.com/v1/memories/nonexistent").mock(
         return_value=Response(404, json={
             "error": {"message": "Memory not found"}
         })
@@ -145,7 +145,7 @@ async def test_async_not_found_error():
 @pytest.mark.asyncio
 async def test_async_pagination():
     """Test async pagination."""
-    respx.get("https://api.trixdb.com/memories").mock(
+    respx.get("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(200, json={
             "data": [{
                 "id": "mem_1",

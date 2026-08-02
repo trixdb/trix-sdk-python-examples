@@ -54,20 +54,20 @@ def mock_config():
 def test_memory_crud_sync(mock_memory):
     """Test full CRUD cycle synchronously."""
     # Create
-    respx.post("https://api.trixdb.com/memories").mock(
+    respx.post("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(200, json=mock_memory)
     )
     # Get
-    respx.get("https://api.trixdb.com/memories/mem_123").mock(
+    respx.get("https://api.trixdb.com/v1/memories/mem_123").mock(
         return_value=Response(200, json=mock_memory)
     )
     # Update
     updated_memory = {**mock_memory, "tags": ["test", "updated"]}
-    respx.patch("https://api.trixdb.com/memories/mem_123").mock(
+    respx.patch("https://api.trixdb.com/v1/memories/mem_123").mock(
         return_value=Response(200, json=updated_memory)
     )
     # Delete
-    respx.delete("https://api.trixdb.com/memories/mem_123").mock(
+    respx.delete("https://api.trixdb.com/v1/memories/mem_123").mock(
         return_value=Response(204)
     )
     
@@ -93,11 +93,11 @@ def test_bulk_operations_sync(mock_memory):
     """Test bulk create and delete synchronously."""
     from trix.types import MemoryCreate
 
-    respx.post("https://api.trixdb.com/memories/bulk").mock(
+    respx.post("https://api.trixdb.com/v1/memories/bulk").mock(
         return_value=Response(200, json={"success": 2, "failed": 0})
     )
-    respx.delete("https://api.trixdb.com/memories/bulk").mock(
-        return_value=Response(204)
+    respx.delete("https://api.trixdb.com/v1/memories/bulk").mock(
+        return_value=Response(200, json={"success": 2, "failed": 0})
     )
 
     with Trix(api_key="test") as client:
@@ -113,13 +113,13 @@ def test_bulk_operations_sync(mock_memory):
 @respx.mock
 def test_list_and_stats_sync(mock_memory_list, mock_stats, mock_config):
     """Test list, stats, and config synchronously."""
-    respx.get("https://api.trixdb.com/memories").mock(
+    respx.get("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(200, json=mock_memory_list)
     )
-    respx.get("https://api.trixdb.com/memories/stats").mock(
+    respx.get("https://api.trixdb.com/v1/memories/stats").mock(
         return_value=Response(200, json=mock_stats)
     )
-    respx.get("https://api.trixdb.com/memories/config").mock(
+    respx.get("https://api.trixdb.com/v1/memories/config").mock(
         return_value=Response(200, json=mock_config)
     )
     
@@ -142,13 +142,13 @@ def test_list_and_stats_sync(mock_memory_list, mock_stats, mock_config):
 @pytest.mark.asyncio
 async def test_memory_crud_async(mock_memory):
     """Test full CRUD cycle asynchronously."""
-    respx.post("https://api.trixdb.com/memories").mock(
+    respx.post("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(200, json=mock_memory)
     )
-    respx.get("https://api.trixdb.com/memories/mem_123").mock(
+    respx.get("https://api.trixdb.com/v1/memories/mem_123").mock(
         return_value=Response(200, json=mock_memory)
     )
-    respx.delete("https://api.trixdb.com/memories/mem_123").mock(
+    respx.delete("https://api.trixdb.com/v1/memories/mem_123").mock(
         return_value=Response(204)
     )
     
