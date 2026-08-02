@@ -2,137 +2,73 @@
 """
 Facts and Entities - Asynchronous Version
 
+Same read-mostly workflow as main.py (create memory -> attach fact ->
+enrich -> read/query/merge), but using AsyncTrix so the independent reads
+run concurrently with asyncio.gather.
+
 Run: python async_example.py
 """
 
 import asyncio
 
-from trix import AsyncTrix
+from trix import AsyncTrix, EnrichmentOperation
+
+
+async def read_knowledge(client: AsyncTrix, memory_id: str) -> None:
+    """Fetch memory facts, account facts, and person entities concurrently."""
+    memory_facts, created_facts, people = await asyncio.gather(
+        client.facts.list_for_memory(memory_id),
+        client.facts.list(predicate="created", limit=10),
+        client.entities.find_by_type("person", limit=5),
+    )
+    print(f"   Memory facts: {memory_facts.total}")
+    print(f"   Account 'created' facts: {created_facts.total}")
+    print(f"   Person entities: {people.total}")
+
+    if people.data:
+        entity = people.data[0]
+        entity_facts = await client.entities.get_facts(entity.id)
+        print(f"   {len(entity_facts.facts)} fact(s) mention {entity.name}")
 
 
 async def main() -> None:
-    """Demonstrate async facts and entities operations."""
-
+    """Demonstrate the async facts and entities workflow."""
     async with AsyncTrix.from_env() as client:
         print("=" * 60)
         print("ASYNC FACTS AND ENTITIES")
         print("=" * 60)
 
-        # ======================================================================
-        # CREATE ENTITIES CONCURRENTLY
-        # ======================================================================
-        print("\n1. Creating entities concurrently...")
-
-        entity_tasks = [
-            client.entities.create(
-                name="JavaScript",
-                entity_type="programming_language",
-                properties={"paradigm": "multi-paradigm"},
-            ),
-            client.entities.create(
-                name="Brendan Eich",
-                entity_type="person",
-                properties={"role": "Creator of JavaScript"},
-            ),
-            client.entities.create(
-                name="Netscape",
-                entity_type="organization",
-            ),
-        ]
-
-        js, brendan, netscape = await asyncio.gather(*entity_tasks)
-        print(f"   ✓ Created {3} entities concurrently")
-
-        # ======================================================================
-        # CREATE FACTS CONCURRENTLY
-        # ======================================================================
-        print("\n2. Creating facts concurrently...")
-
-        fact_tasks = [
-            client.facts.create(
-                subject=brendan.id,
-                predicate="created",
-                obj=js.id,
-                confidence=1.0,
-            ),
-            client.facts.create(
-                subject=brendan.id,
-                predicate="worked_at",
-                obj=netscape.id,
-            ),
-            client.facts.create(
-                subject=js.id,
-                predicate="developed_at",
-                obj=netscape.id,
-            ),
-        ]
-
-        facts = await asyncio.gather(*fact_tasks)
-        print(f"   ✓ Created {len(facts)} facts concurrently")
-
-        # ======================================================================
-        # CREATE A MEMORY AND EXTRACT IN PARALLEL
-        # ======================================================================
-        print("\n3. Creating memory and parallel extraction...")
-
-        text = "Brendan Eich created JavaScript at Netscape in 1995."
-
-        # First create a memory to extract from
-        extraction_memory = await client.memories.create(
-            content=text, metadata={"type": "extraction_demo"}
+        print("\n1. Creating a source memory...")
+        memory = await client.memories.create(
+            content="Brendan Eich created JavaScript at Netscape in 1995.",
+            tags=["knowledge", "programming"],
         )
+        print(f"   Created memory {memory.id}")
 
-        # Now extract entities and facts in parallel
-        entity_extract, fact_extract = await asyncio.gather(
-            client.entities.extract(memory_id=extraction_memory.id, save=False),
-            client.facts.extract(memory_id=extraction_memory.id, save=False),
+        print("\n2. Attaching an explicit fact...")
+        fact = await client.facts.create_for_memory(
+            memory.id,
+            content="Brendan Eich created JavaScript.",
+            importance=8,
         )
+        print(f"   Attached fact {fact.id}")
 
-        print(f"   Entities: {len(entity_extract.entities)}")
-        print(f"   Facts: {len(fact_extract.facts)}")
-
-        # ======================================================================
-        # PARALLEL QUERIES
-        # ======================================================================
-        print("\n4. Parallel queries...")
-
-        js_facts, created_facts, search_results = await asyncio.gather(
-            client.facts.list(subject=js.id),
-            client.facts.list(predicate="created"),
-            client.entities.search(query="programming"),
+        print("\n3. Triggering extraction (enrichment)...")
+        result = await client.enrichments.enrich(
+            memory.id,
+            operations=[EnrichmentOperation.ENTITIES, EnrichmentOperation.TOPICS],
         )
+        print(f"   Enrichment status={result.status}")
 
-        print(f"   JS facts: {len(js_facts.data)}")
-        print(f"   'created' facts: {len(created_facts.data)}")
-        print(f"   Search results: {len(search_results.entities)}")
+        print("\n4. Reading knowledge concurrently...")
+        await read_knowledge(client, memory.id)
 
-        # ======================================================================
-        # VERIFY FACT
-        # ======================================================================
-        print("\n5. Verifying fact...")
+        print("\n5. Cleaning up...")
+        await client.memories.delete(memory.id)
+        print("   Deleted source memory")
 
-        # Verify the first fact we created
-        verification = await client.facts.verify(fact_id=facts[0].id)
-        print(f"   Verified: {verification.is_verified}")
-
-        # ======================================================================
-        # CLEANUP
-        # ======================================================================
-        print("\n6. Cleaning up...")
-
-        await asyncio.gather(*[client.facts.delete(f.id) for f in facts])
-        await client.memories.delete(extraction_memory.id)
-        await asyncio.gather(
-            *[
-                client.entities.delete(js.id),
-                client.entities.delete(brendan.id),
-                client.entities.delete(netscape.id),
-            ]
-        )
-
-        print("   ✓ Cleaned up")
         print("\n" + "=" * 60)
-        print("🎉 Async facts and entities complete!")
+        print("Async facts and entities complete!")
         print("=" * 60)
 
 

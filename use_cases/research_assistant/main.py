@@ -2,76 +2,59 @@
 """
 Research Assistant - Synchronous Version
 
-A research assistant demonstrating:
-1. Document ingestion and storage
-2. Entity and fact extraction
-3. Knowledge graph building
-4. Multi-hop question answering
+A research assistant demonstrating the real, read-mostly knowledge API:
+1. Document ingestion (memories) scoped to a project space
+2. Knowledge extraction via ENRICHMENT (entities + facts, async server-side)
+3. Semantic search across documents
+4. Entity lookup and fact retrieval (read-only)
+
+Note: entities and facts are NOT created by hand — they are extracted from
+the documents you ingest. This assistant stores documents and reads back the
+knowledge the server derives from them.
 
 Run: python main.py
 """
 
-from trix import Trix
+from trix import EnrichmentOperation, Trix
 from trix.exceptions import NotFoundError
 
 
 class ResearchAssistant:
-    """A research assistant that builds a knowledge graph from documents."""
+    """Builds a project knowledge base from ingested documents."""
 
-    def __init__(self, client: Trix, project_name: str):
+    def __init__(self, client: Trix, project_name: str) -> None:
         self.client = client
         self.space_id: str | None = None
         self._setup_project(project_name)
 
     def _setup_project(self, name: str) -> None:
-        """Create a space for this research project."""
+        """Create (or reuse) a space for this research project."""
         slug = name.lower().replace(" ", "-")
         try:
             space = self.client.spaces.get_by_slug(slug)
-            self.space_id = space.id
         except NotFoundError:
             space = self.client.spaces.create(
                 name=name, slug=slug, description=f"Research project: {name}"
             )
-            self.space_id = space.id
+        self.space_id = space.id
 
-    def ingest_document(self, content: str, source: str, extract_entities: bool = True) -> dict:
-        """Ingest a document and optionally extract entities."""
-        # Store the document
+    def ingest_document(self, content: str, source: str) -> dict:
+        """Store a document and trigger knowledge extraction (enrichment)."""
         memory = self.client.memories.create(
             content=content,
             space_id=self.space_id,
             tags=["document"],
             metadata={"source": source, "type": "document"},
         )
-
-        result = {"memory_id": memory.id, "entities": [], "facts": []}
-
-        if extract_entities:
-            # Extract entities from the memory we just created
-            extraction = self.client.entities.extract(memory_id=memory.id, save=False)
-            for entity in extraction.entities:
-                created = self.client.entities.create(
-                    name=entity.name,
-                    entity_type=entity.entity_type,
-                )
-                result["entities"].append(created.id)
-
-            # Extract facts from the memory
-            facts_extraction = self.client.facts.extract(memory_id=memory.id, save=False)
-            for fact in facts_extraction.facts:
-                created = self.client.facts.create(
-                    subject=fact.subject,
-                    predicate=fact.predicate,
-                    obj=fact.object,
-                    metadata={"source": source},
-                )
-                result["facts"].append(created.id)
-
-        return result
+        # Entities + facts are extracted asynchronously by enrichment.
+        enrichment = self.client.enrichments.enrich(
+            memory.id,
+            operations=[EnrichmentOperation.ENTITIES, EnrichmentOperation.TOPICS],
+        )
+        return {"memory_id": memory.id, "enrichment_status": enrichment.status}
 
     def search_documents(self, query: str, limit: int = 5) -> list[dict]:
-        """Search documents in the project."""
+        """Search documents in the project space."""
         results = self.client.search.query(
             query=query, space_id=self.space_id, tags=["document"], limit=limit
         )
@@ -85,41 +68,49 @@ class ResearchAssistant:
         ]
 
     def find_entity(self, name: str) -> dict | None:
-        """Find an entity by name."""
-        result = self.client.entities.resolve(text=name)
-        if result.entity:
-            return {
-                "id": result.entity.id,
-                "name": result.entity.name,
-                "type": result.entity.entity_type,
-            }
+        """Find an extracted entity by name or alias (client-side match)."""
+        # For large accounts you would paginate; entities.list is read-only.
+        entities = self.client.entities.list(limit=100)
+        needle = name.lower()
+        for entity in entities.data:
+            candidates = [entity.name.lower(), *(a.lower() for a in entity.aliases)]
+            if needle in candidates:
+                return {"id": entity.id, "name": entity.name, "type": entity.type}
         return None
 
     def get_facts_about(self, entity_name: str) -> list[dict]:
-        """Get facts about an entity."""
+        """Get facts that mention an entity (entities.get_facts)."""
         entity = self.find_entity(entity_name)
         if not entity:
             return []
-
-        facts = self.client.facts.list(subject=entity["id"], limit=10)
-        return [{"predicate": f.predicate, "object": f.object} for f in facts.data]
+        result = self.client.entities.get_facts(entity["id"])
+        return [{"predicate": f.predicate, "object": f.object} for f in result.facts]
 
     def answer_question(self, question: str) -> dict:
-        """Answer a question using the knowledge base."""
-        # Search relevant documents
+        """Answer a question using documents plus related facts."""
         docs = self.search_documents(question, limit=3)
-
-        # Get facts related to the question (if any exist)
-        # Note: fact verification requires a fact_id, so we search for related facts instead
         related_facts = self.client.facts.list(limit=5)
-
         return {
             "relevant_documents": docs,
             "related_facts_count": len(related_facts.data),
         }
 
 
-def main():
+def _ingest_corpus(assistant: ResearchAssistant) -> list[dict]:
+    """Ingest a small demo corpus and return the ingest results."""
+    documents = [
+        ("Python was created by Guido van Rossum in 1991.", "wikipedia"),
+        ("Python supports procedural and object-oriented paradigms.", "docs.python.org"),
+        ("Django is a high-level Python web framework.", "djangoproject.com"),
+    ]
+    results = []
+    for content, source in documents:
+        results.append(assistant.ingest_document(content, source))
+        print(f"   Ingested from {source}")
+    return results
+
+
+def main() -> None:
     """Demonstrate the research assistant."""
     print("=" * 60)
     print("RESEARCH ASSISTANT")
@@ -128,64 +119,34 @@ def main():
     with Trix.from_env() as client:
         assistant = ResearchAssistant(client, "Python Research")
 
-        # Ingest documents
-        print("\n1. Ingesting documents...")
+        print("\n1. Ingesting documents (extraction runs via enrichment)...")
+        doc_results = _ingest_corpus(assistant)
 
-        documents = [
-            (
-                "Python was created by Guido van Rossum in 1991. It emphasizes code readability.",
-                "wikipedia",
-            ),
-            (
-                "Python supports multiple programming paradigms including procedural and OOP.",
-                "docs.python.org",
-            ),
-            (
-                "Django is a high-level Python web framework that encourages rapid development.",
-                "djangoproject.com",
-            ),
-        ]
-
-        doc_results = []
-        for content, source in documents:
-            result = assistant.ingest_document(content, source)
-            doc_results.append(result)
-            print(f"   ✓ Ingested from {source}")
-
-        # Search
         print("\n2. Searching documents...")
-        results = assistant.search_documents("Python web framework")
-        print(f"   Found {len(results)} relevant documents")
-        for r in results:
-            print(f"      - {r['source']}: {r['content'][:50]}...")
+        for r in assistant.search_documents("Python web framework"):
+            print(f"   - {r['source']}: {r['content'][:50]}...")
 
-        # Find entity
-        print("\n3. Finding entities...")
+        print("\n3. Finding an entity...")
         entity = assistant.find_entity("Python")
-        if entity:
-            print(f"   Found: {entity['name']} ({entity['type']})")
+        print(f"   {entity['name']} ({entity['type']})" if entity else "   (not extracted yet)")
 
-        # Get facts
         print("\n4. Getting facts about Python...")
-        facts = assistant.get_facts_about("Python")
-        print(f"   Found {len(facts)} facts")
+        print(f"   Found {len(assistant.get_facts_about('Python'))} fact(s)")
 
-        # Answer question
-        print("\n5. Answering question...")
+        print("\n5. Answering a question...")
         answer = assistant.answer_question("Who created Python?")
-        print(f"   Found {len(answer['relevant_documents'])} relevant docs")
-        print(f"   Related facts: {answer['related_facts_count']}")
+        print(f"   {len(answer['relevant_documents'])} docs, {answer['related_facts_count']} facts")
 
-        # Cleanup
         print("\n6. Cleaning up...")
         for result in doc_results:
             client.memories.delete(result["memory_id"])
-        client.spaces.delete(assistant.space_id)
-        print("   ✓ Cleaned up")
+        if assistant.space_id:
+            client.spaces.delete(assistant.space_id)
+        print("   Cleaned up")
 
-        print("\n" + "=" * 60)
-        print("🎉 Research assistant complete!")
-        print("=" * 60)
+    print("\n" + "=" * 60)
+    print("Research assistant complete!")
+    print("=" * 60)
 
 
 if __name__ == "__main__":
