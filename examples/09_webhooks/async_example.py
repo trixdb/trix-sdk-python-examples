@@ -6,6 +6,7 @@ Run: python async_example.py
 """
 
 import asyncio
+
 from trix import AsyncTrix
 from trix.types import WebhookEvent
 
@@ -52,9 +53,7 @@ async def main() -> None:
         # ======================================================================
         print("\n3. Querying webhooks in parallel...")
 
-        query_tasks = [
-            client.webhooks.get(wh.id) for wh in webhooks
-        ]
+        query_tasks = [client.webhooks.get(wh.id) for wh in webhooks]
 
         details = await asyncio.gather(*query_tasks)
 
@@ -81,9 +80,7 @@ async def main() -> None:
         # ======================================================================
         print("\n5. Getting deliveries in parallel...")
 
-        delivery_tasks = [
-            client.webhooks.get_deliveries(wh.id, limit=5) for wh in webhooks
-        ]
+        delivery_tasks = [client.webhooks.get_deliveries(wh.id, limit=5) for wh in webhooks]
 
         delivery_results = await asyncio.gather(*delivery_tasks)
 

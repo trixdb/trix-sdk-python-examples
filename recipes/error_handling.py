@@ -7,24 +7,24 @@ Common patterns for handling errors with the Trix SDK.
 
 from trix import Trix
 from trix.exceptions import (
-    TrixError,
     AuthenticationError,
-    RateLimitError,
     NotFoundError,
-    ValidationError,
+    RateLimitError,
     ServerError,
+    TrixError,
+    ValidationError,
 )
-
 
 # =============================================================================
 # 1. Basic Error Handling
 # =============================================================================
 
+
 def basic_error_handling():
     """Handle errors with a try/except block."""
     with Trix.from_env() as client:
         try:
-            memory = client.memories.get("nonexistent-id")
+            client.memories.get("nonexistent-id")
         except NotFoundError:
             print("Memory not found")
         except AuthenticationError:
@@ -37,34 +37,35 @@ def basic_error_handling():
 # 2. Comprehensive Error Handling
 # =============================================================================
 
+
 def comprehensive_error_handling():
     """Handle all error types with appropriate responses."""
     with Trix.from_env() as client:
         try:
             memory = client.memories.create(content="Test")
             print(f"Created: {memory.id}")
-            
+
         except AuthenticationError:
             # API key is invalid or expired
             print("Please check your TRIX_API_KEY environment variable")
             raise SystemExit(1)
-            
+
         except RateLimitError as e:
             # Too many requests - wait and retry
             print(f"Rate limited. Retry after: {e.retry_after} seconds")
-            
+
         except ValidationError as e:
             # Request validation failed
             print(f"Invalid request: {e.message}")
-            
+
         except NotFoundError:
             # Resource doesn't exist
             print("Resource not found")
-            
+
         except ServerError:
             # Server-side error (5xx)
             print("Server error - please try again later")
-            
+
         except TrixError as e:
             # Catch-all for other Trix errors
             print(f"Unexpected error: {e}")
@@ -74,10 +75,11 @@ def comprehensive_error_handling():
 # 3. Graceful Degradation
 # =============================================================================
 
+
 def graceful_degradation(query: str) -> list[str]:
     """Return partial results when some operations fail."""
     results = []
-    
+
     with Trix.from_env() as client:
         # Try semantic search first
         try:
@@ -85,7 +87,7 @@ def graceful_degradation(query: str) -> list[str]:
             results.extend([r.memory.content for r in search_results.data])
         except TrixError:
             pass  # Fall through to alternatives
-        
+
         # Try query search as backup
         if not results:
             try:
@@ -93,7 +95,7 @@ def graceful_degradation(query: str) -> list[str]:
                 results.extend([r.memory.content for r in similar.data])
             except TrixError:
                 pass
-        
+
         # Return whatever we got
         return results
 
@@ -102,9 +104,10 @@ def graceful_degradation(query: str) -> list[str]:
 # 4. Error Context Preservation
 # =============================================================================
 
+
 class MemoryOperationError(Exception):
     """Custom exception with context."""
-    
+
     def __init__(self, operation: str, memory_id: str, cause: Exception):
         self.operation = operation
         self.memory_id = memory_id
@@ -125,10 +128,11 @@ def operation_with_context(memory_id: str):
 # 5. Bulk Operation Error Handling
 # =============================================================================
 
+
 def bulk_with_partial_failure(contents: list[str]) -> dict:
     """Handle partial failures in bulk operations."""
     results = {"succeeded": [], "failed": []}
-    
+
     with Trix.from_env() as client:
         for content in contents:
             try:
@@ -136,10 +140,9 @@ def bulk_with_partial_failure(contents: list[str]) -> dict:
                 results["succeeded"].append(memory.id)
             except TrixError as e:
                 results["failed"].append({"content": content[:50], "error": str(e)})
-    
+
     return results
 
 
 if __name__ == "__main__":
     basic_error_handling()
-

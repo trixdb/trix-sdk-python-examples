@@ -6,6 +6,7 @@ Run: python async_example.py
 """
 
 import asyncio
+
 from trix import AsyncTrix
 
 
@@ -23,8 +24,7 @@ async def main() -> None:
         print("\n1. Creating session...")
 
         session = await client.agent.create_session(
-            session_id="async_sess_123",
-            metadata={"channel": "api"}
+            session_id="async_sess_123", metadata={"channel": "api"}
         )
         print(f"   Created session: {session.session_id}")
 
@@ -56,27 +56,25 @@ async def main() -> None:
 
         context, session_info = await asyncio.gather(
             client.agent.get_context(
-                query="What was discussed?",
-                session_id=session.session_id,
-                limit=5
+                query="What was discussed?", session_id=session.session_id, limit=5
             ),
-            client.agent.get_session(session.session_id)
+            client.agent.get_session(session.session_id),
         )
 
         print(f"   Context memories: {len(context.memories)}")
-        print(f"   Session retrieved")
+        print("   Session retrieved")
 
         # ======================================================================
         # END AND SUMMARIZE
         # ======================================================================
         print("\n4. Ending session with summary...")
 
-        ended = await client.agent.end_session(
+        await client.agent.end_session(
             session_id=session.session_id,
             summary="Discussion about machine learning concepts",
-            key_insights=["User learning about ML", "Covered image recognition"]
+            key_insights=["User learning about ML", "Covered image recognition"],
         )
-        print(f"   Session ended")
+        print("   Session ended")
 
         print("\n" + "=" * 60)
         print("Async agent sessions complete!")

@@ -6,12 +6,13 @@ Efficient patterns for paginating through large result sets.
 """
 
 import asyncio
-from trix import Trix, AsyncTrix
 
+from trix import AsyncTrix, Trix
 
 # =============================================================================
 # 1. Basic Iterator Pattern (Recommended)
 # =============================================================================
+
 
 def iterate_all_memories():
     """Use the built-in iterator for automatic pagination."""
@@ -26,6 +27,7 @@ def iterate_all_memories():
 # 2. Async Iterator Pattern
 # =============================================================================
 
+
 async def iterate_all_memories_async():
     """Async iteration with automatic pagination."""
     async with AsyncTrix.from_env() as client:
@@ -36,6 +38,7 @@ async def iterate_all_memories_async():
 # =============================================================================
 # 3. Manual Pagination with Cursor
 # =============================================================================
+
 
 def manual_pagination():
     """Manual pagination when you need more control."""
@@ -65,6 +68,7 @@ def manual_pagination():
 # 4. Filtered Pagination
 # =============================================================================
 
+
 def paginate_with_filters(tag: str):
     """Paginate through filtered results."""
     with Trix.from_env() as client:
@@ -77,19 +81,20 @@ def paginate_with_filters(tag: str):
 # 5. Batch Processing with Pagination
 # =============================================================================
 
+
 def process_in_batches(batch_size: int = 50):
     """Process memories in batches for efficiency."""
     with Trix.from_env() as client:
         batch = []
-        
+
         for memory in client.memories.iter(page_size=100):
             batch.append(memory)
-            
+
             if len(batch) >= batch_size:
                 # Process batch
                 process_batch(batch)
                 batch = []
-        
+
         # Process remaining
         if batch:
             process_batch(batch)
@@ -104,6 +109,7 @@ def process_batch(memories):
 # 6. Parallel Pagination (Async)
 # =============================================================================
 
+
 async def parallel_pagination():
     """Fetch from multiple sources in parallel."""
     async with AsyncTrix.from_env() as client:
@@ -113,9 +119,9 @@ async def parallel_pagination():
             collect_all(await client.memories.iter(tags=["recent"])),
             collect_all(await client.memories.iter(tags=["archived"])),
         ]
-        
+
         important, recent, archived = await asyncio.gather(*tasks)
-        
+
         print(f"Important: {len(important)}, Recent: {len(recent)}, Archived: {len(archived)}")
 
 
@@ -131,26 +137,28 @@ async def collect_all(async_iterator) -> list:
 # 7. Progress Tracking
 # =============================================================================
 
+
 def paginate_with_progress():
     """Track progress while paginating."""
     with Trix.from_env() as client:
         processed = 0
-        
+
         for memory in client.memories.iter(page_size=100):
             processed += 1
-            
+
             # Log progress every 100 items
             if processed % 100 == 0:
                 print(f"Processed {processed} memories...")
-            
+
             # Do work...
-        
+
         print(f"Done! Processed {processed} total memories")
 
 
 # =============================================================================
 # 8. Early Termination
 # =============================================================================
+
 
 def paginate_until_found(target_content: str) -> str | None:
     """Stop pagination early when target is found."""
@@ -163,4 +171,3 @@ def paginate_until_found(target_content: str) -> str | None:
 
 if __name__ == "__main__":
     iterate_all_memories()
-

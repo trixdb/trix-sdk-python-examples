@@ -28,8 +28,7 @@ def main() -> None:
         print("\n1. Creating agent session...")
 
         session = client.agent.create_session(
-            session_id="chat_123",
-            metadata={"channel": "web", "language": "en"}
+            session_id="chat_123", metadata={"channel": "web", "language": "en"}
         )
 
         print(f"   Session created: {session.session_id}")
@@ -44,7 +43,10 @@ def main() -> None:
             {"role": "user", "content": "Hi, I'm interested in learning Python."},
             {"role": "assistant", "content": "Great choice! Python is excellent for beginners."},
             {"role": "user", "content": "What should I start with?"},
-            {"role": "assistant", "content": "Start with basic syntax, then move to data structures."},
+            {
+                "role": "assistant",
+                "content": "Start with basic syntax, then move to data structures.",
+            },
         ]
 
         for conv in conversations:
@@ -52,7 +54,7 @@ def main() -> None:
                 session_id=session.session_id,
                 content=conv["content"],
                 role=conv["role"],
-                importance=0.8 if conv["role"] == "user" else 0.5
+                importance=0.8 if conv["role"] == "user" else 0.5,
             )
             print(f"   Added {conv['role']} message: {mem.id}")
 
@@ -61,9 +63,9 @@ def main() -> None:
         # ======================================================================
         print("\n3. Getting session details...")
 
-        retrieved = client.agent.get_session(session.session_id)
+        client.agent.get_session(session.session_id)
         print(f"   Session: {session.session_id}")
-        print(f"   Memories retrieved")
+        print("   Memories retrieved")
 
         # ======================================================================
         # GET CONTEXT
@@ -71,9 +73,7 @@ def main() -> None:
         print("\n4. Retrieving conversation context...")
 
         context = client.agent.get_context(
-            query="What topics were discussed?",
-            session_id=session.session_id,
-            limit=5
+            query="What topics were discussed?", session_id=session.session_id, limit=5
         )
 
         print(f"   Found {len(context.memories)} relevant memories:")
@@ -94,13 +94,13 @@ def main() -> None:
         # ======================================================================
         print("\n6. Ending session with summary...")
 
-        ended = client.agent.end_session(
+        client.agent.end_session(
             session_id=session.session_id,
             summary="Discussion about learning Python programming",
-            key_insights=["User is a beginner", "Interested in Python basics"]
+            key_insights=["User is a beginner", "Interested in Python basics"],
         )
 
-        print(f"   Session ended")
+        print("   Session ended")
 
         # ======================================================================
         # CREATE ANOTHER SESSION
@@ -115,13 +115,12 @@ def main() -> None:
         client.agent.add_session_memory(
             session_id=new_session.session_id,
             content="Discussion about Python decorators",
-            role="user"
+            role="user",
         )
 
         # End the session
         client.agent.end_session(
-            session_id=new_session.session_id,
-            summary="Brief discussion about decorators"
+            session_id=new_session.session_id, summary="Brief discussion about decorators"
         )
 
         print("   Session created and ended")

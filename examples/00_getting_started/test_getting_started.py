@@ -7,13 +7,12 @@ These tests use respx to mock HTTP requests, allowing testing without a real API
 import pytest
 import respx
 from httpx import Response
-
-from trix import Trix, AsyncTrix
-
+from trix import AsyncTrix, Trix
 
 # =============================================================================
 # Test Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def mock_memory():
@@ -34,6 +33,7 @@ def mock_memory():
 # Synchronous Tests
 # =============================================================================
 
+
 @respx.mock
 def test_create_memory_sync(mock_memory):
     """Test creating a memory synchronously."""
@@ -41,13 +41,13 @@ def test_create_memory_sync(mock_memory):
     respx.post("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(200, json=mock_memory)
     )
-    
+
     with Trix(api_key="test_key") as client:
         memory = client.memories.create(
             content="The Trix SDK makes it easy to store and retrieve memories.",
             tags=["getting-started", "tutorial"],
         )
-        
+
         assert memory.id == "mem_test123"
         assert "getting-started" in memory.tags
 
@@ -61,9 +61,7 @@ def test_search_memories_sync(mock_memory):
         "limit": 5,
         "offset": 0,
     }
-    respx.get("https://api.trixdb.com/v1/memories").mock(
-        return_value=Response(200, json=mock_list)
-    )
+    respx.get("https://api.trixdb.com/v1/memories").mock(return_value=Response(200, json=mock_list))
 
     with Trix(api_key="test_key") as client:
         results = client.memories.list(q="How do I store memories?", limit=5)
@@ -76,6 +74,7 @@ def test_search_memories_sync(mock_memory):
 # Asynchronous Tests
 # =============================================================================
 
+
 @respx.mock
 @pytest.mark.asyncio
 async def test_create_memory_async(mock_memory):
@@ -83,13 +82,13 @@ async def test_create_memory_async(mock_memory):
     respx.post("https://api.trixdb.com/v1/memories").mock(
         return_value=Response(200, json=mock_memory)
     )
-    
+
     async with AsyncTrix(api_key="test_key") as client:
         memory = await client.memories.create(
             content="The Trix SDK makes it easy to store and retrieve memories.",
             tags=["getting-started", "tutorial"],
         )
-        
+
         assert memory.id == "mem_test123"
         assert "getting-started" in memory.tags
 
@@ -104,13 +103,10 @@ async def test_search_memories_async(mock_memory):
         "limit": 5,
         "offset": 0,
     }
-    respx.get("https://api.trixdb.com/v1/memories").mock(
-        return_value=Response(200, json=mock_list)
-    )
+    respx.get("https://api.trixdb.com/v1/memories").mock(return_value=Response(200, json=mock_list))
 
     async with AsyncTrix(api_key="test_key") as client:
         results = await client.memories.list(q="How do I store memories?", limit=5)
 
         assert len(results.data) == 1
         assert results.data[0].id == "mem_test123"
-

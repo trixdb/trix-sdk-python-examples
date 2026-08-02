@@ -3,8 +3,7 @@
 import pytest
 import respx
 from httpx import Response
-
-from trix import Trix, AsyncTrix
+from trix import AsyncTrix, Trix
 
 
 @pytest.fixture
@@ -75,19 +74,20 @@ def mock_entity_search(mock_entity):
 # Synchronous Tests
 # =============================================================================
 
+
 @respx.mock
 def test_create_entity_sync(mock_entity):
     """Test creating an entity synchronously."""
     respx.post("https://api.trixdb.com/v1/entities").mock(
         return_value=Response(200, json=mock_entity)
     )
-    
+
     with Trix(api_key="test") as client:
         entity = client.entities.create(
             name="Python",
             entity_type="programming_language",
         )
-        
+
         assert entity.id == "ent_123"
         assert entity.name == "Python"
 
@@ -95,9 +95,7 @@ def test_create_entity_sync(mock_entity):
 @respx.mock
 def test_create_fact_sync(mock_fact):
     """Test creating a fact synchronously."""
-    respx.post("https://api.trixdb.com/v1/facts").mock(
-        return_value=Response(200, json=mock_fact)
-    )
+    respx.post("https://api.trixdb.com/v1/facts").mock(return_value=Response(200, json=mock_fact))
 
     with Trix(api_key="test") as client:
         fact = client.facts.create(
@@ -139,6 +137,7 @@ def test_list_entities_sync(mock_entity_list):
 # Asynchronous Tests
 # =============================================================================
 
+
 @respx.mock
 @pytest.mark.asyncio
 async def test_create_entity_async(mock_entity):
@@ -146,13 +145,13 @@ async def test_create_entity_async(mock_entity):
     respx.post("https://api.trixdb.com/v1/entities").mock(
         return_value=Response(200, json=mock_entity)
     )
-    
+
     async with AsyncTrix(api_key="test") as client:
         entity = await client.entities.create(
             name="Python",
             entity_type="programming_language",
         )
-        
+
         assert entity.id == "ent_123"
 
 
@@ -168,4 +167,3 @@ async def test_search_entities_async(mock_entity_search):
         result = await client.entities.search(query="programming")
 
         assert len(result.data) == 1
-

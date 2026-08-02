@@ -14,14 +14,13 @@ Run: python main.py
 """
 
 import time
+
 from trix import Trix
 from trix.exceptions import (
-    TrixError,
-    AuthenticationError,
-    RateLimitError,
     NotFoundError,
+    RateLimitError,
+    TrixError,
     ValidationError,
-    ServerError,
 )
 from trix.types import MemoryCreate
 
@@ -31,11 +30,11 @@ def demonstrate_error_handling():
     print("\n" + "=" * 60)
     print("ERROR HANDLING")
     print("=" * 60)
-    
+
     with Trix.from_env() as client:
         # Handle specific errors
         print("\n1. Handling specific exceptions...")
-        
+
         try:
             # Try to get a non-existent memory
             client.memories.get("nonexistent_id")
@@ -44,10 +43,10 @@ def demonstrate_error_handling():
             print(f"     Status: {e.status_code}")
         except TrixError as e:
             print(f"   Other error: {e}")
-        
+
         # Handle validation errors
         print("\n2. Handling validation errors...")
-        
+
         try:
             # Invalid input
             client.memories.create(content="")  # Empty content
@@ -58,10 +57,10 @@ def demonstrate_error_handling():
                     print(f"     - {field}: {msg}")
         except TrixError as e:
             print(f"   Other error: {e}")
-        
+
         # Handle rate limiting
         print("\n3. Rate limit handling pattern...")
-        
+
         def with_rate_limit_retry(func, max_retries=3):
             """Execute function with rate limit retry."""
             for attempt in range(max_retries):
@@ -69,12 +68,12 @@ def demonstrate_error_handling():
                     return func()
                 except RateLimitError as e:
                     if attempt < max_retries - 1:
-                        wait_time = e.retry_after or (2 ** attempt)
+                        wait_time = e.retry_after or (2**attempt)
                         print(f"   Rate limited, waiting {wait_time}s...")
                         time.sleep(wait_time)
                     else:
                         raise
-        
+
         # Usage example (simulated)
         print("   ✓ Rate limit retry pattern implemented")
 
@@ -84,35 +83,35 @@ def demonstrate_custom_client_config():
     print("\n" + "=" * 60)
     print("CUSTOM CLIENT CONFIGURATION")
     print("=" * 60)
-    
+
     # Custom timeout configuration
     print("\n1. Custom timeout configuration...")
-    
+
     client = Trix.from_env(
         timeout=30.0,  # 30 second timeout
     )
-    
+
     with client:
-        print(f"   ✓ Client configured with custom timeout")
-    
+        print("   ✓ Client configured with custom timeout")
+
     # Custom base URL (for self-hosted or proxy)
     print("\n2. Custom base URL...")
-    
+
     # client = Trix(
     #     api_key="your-key",
     #     base_url="https://your-proxy.example.com/v1"
     # )
     print("   ✓ Custom base URL pattern shown")
-    
+
     # Connection with retries
     print("\n3. Connection with automatic retries...")
-    
+
     client = Trix.from_env(
         max_retries=3,
     )
-    
+
     with client:
-        print(f"   ✓ Client configured with 3 retries")
+        print("   ✓ Client configured with 3 retries")
 
 
 def demonstrate_batch_operations():
@@ -120,16 +119,16 @@ def demonstrate_batch_operations():
     print("\n" + "=" * 60)
     print("BATCH OPERATIONS")
     print("=" * 60)
-    
+
     with Trix.from_env() as client:
         # Batch create with chunking
         print("\n1. Chunked batch creation...")
-        
+
         def chunked_create(items: list, chunk_size: int = 100):
             """Create items in chunks to avoid payload limits."""
             total_success = 0
             for i in range(0, len(items), chunk_size):
-                chunk = items[i:i + chunk_size]
+                chunk = items[i : i + chunk_size]
                 result = client.memories.bulk_create(chunk)
                 total_success += result.success
                 print(f"   Processed chunk {i//chunk_size + 1}")
@@ -146,7 +145,7 @@ def demonstrate_pagination_patterns():
     print("\n" + "=" * 60)
     print("PAGINATION PATTERNS")
     print("=" * 60)
-    
+
     with Trix.from_env() as client:
         # Create some test data
         for i in range(5):
@@ -191,12 +190,12 @@ def main():
     print("=" * 60)
     print("ADVANCED PATTERNS")
     print("=" * 60)
-    
+
     demonstrate_error_handling()
     demonstrate_custom_client_config()
     demonstrate_batch_operations()
     demonstrate_pagination_patterns()
-    
+
     print("\n" + "=" * 60)
     print("🎉 Advanced patterns complete!")
     print("=" * 60)
@@ -204,4 +203,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

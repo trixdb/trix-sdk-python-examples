@@ -12,7 +12,6 @@ Run: python main.py
 """
 
 from trix import Trix
-from trix.types import MemoryCreate
 
 
 def main() -> None:
@@ -54,7 +53,7 @@ def main() -> None:
         python_cluster = client.clusters.create(
             name="Python Programming",
             description="Cluster for Python-related memories",
-            metadata={"topic": "programming", "language": "python"}
+            metadata={"topic": "programming", "language": "python"},
         )
 
         print(f"   Created cluster: {python_cluster.name} ({python_cluster.id})")
@@ -66,12 +65,9 @@ def main() -> None:
 
         # Add first 3 memories (Python-related)
         for mem in memories[:3]:
-            client.clusters.add_memory(
-                cluster_id=python_cluster.id,
-                memory_id=mem.id
-            )
+            client.clusters.add_memory(cluster_id=python_cluster.id, memory_id=mem.id)
 
-        print(f"   Added 3 memories to Python cluster")
+        print("   Added 3 memories to Python cluster")
 
         # ======================================================================
         # GET CLUSTER (with memories)
@@ -98,11 +94,7 @@ def main() -> None:
         # ======================================================================
         print("\n6. Expanding cluster (finding similar memories)...")
 
-        suggestions = client.clusters.expand(
-            cluster_id=python_cluster.id,
-            limit=5,
-            threshold=0.6
-        )
+        suggestions = client.clusters.expand(cluster_id=python_cluster.id, limit=5, threshold=0.6)
 
         print(f"   Found {len(suggestions)} candidate memories")
 
@@ -112,9 +104,7 @@ def main() -> None:
         print("\n7. Updating cluster...")
 
         updated = client.clusters.update(
-            python_cluster.id,
-            name="Python Programming Concepts",
-            description="Updated description"
+            python_cluster.id, name="Python Programming Concepts", description="Updated description"
         )
         print(f"   Updated cluster name to: {updated.name}")
 
@@ -123,11 +113,8 @@ def main() -> None:
         # ======================================================================
         print("\n8. Removing memory from cluster...")
 
-        client.clusters.remove_memory(
-            cluster_id=python_cluster.id,
-            memory_id=memories[0].id
-        )
-        print(f"   Removed one memory from cluster")
+        client.clusters.remove_memory(cluster_id=python_cluster.id, memory_id=memories[0].id)
+        print("   Removed one memory from cluster")
 
         # Verify count
         updated_cluster = client.clusters.get(python_cluster.id)

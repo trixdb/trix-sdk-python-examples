@@ -3,8 +3,7 @@
 import pytest
 import respx
 from httpx import Response
-
-from trix import Trix, AsyncTrix
+from trix import AsyncTrix, Trix
 
 
 @pytest.fixture
@@ -63,19 +62,20 @@ def mock_expansion():
 # Synchronous Tests
 # =============================================================================
 
+
 @respx.mock
 def test_create_cluster_sync(mock_cluster):
     """Test creating a cluster synchronously."""
     respx.post("https://api.trixdb.com/v1/clusters").mock(
         return_value=Response(200, json=mock_cluster)
     )
-    
+
     with Trix(api_key="test") as client:
         cluster = client.clusters.create(
             name="Python Cluster",
             description="Python memories",
         )
-        
+
         assert cluster.id == "cluster_123"
         assert cluster.name == "Python Cluster"
 
@@ -86,10 +86,10 @@ def test_get_cluster_sync(mock_cluster):
     respx.get("https://api.trixdb.com/v1/clusters/cluster_123").mock(
         return_value=Response(200, json=mock_cluster)
     )
-    
+
     with Trix(api_key="test") as client:
         cluster = client.clusters.get("cluster_123")
-        
+
         assert cluster.memory_count == 5
 
 
@@ -99,10 +99,10 @@ def test_list_clusters_sync(mock_cluster_list):
     respx.get("https://api.trixdb.com/v1/clusters").mock(
         return_value=Response(200, json=mock_cluster_list)
     )
-    
+
     with Trix(api_key="test") as client:
         clusters = client.clusters.list()
-        
+
         assert len(clusters.data) == 1
 
 
@@ -145,6 +145,7 @@ def test_expand_cluster_sync(mock_expansion):
 # Asynchronous Tests
 # =============================================================================
 
+
 @respx.mock
 @pytest.mark.asyncio
 async def test_create_cluster_async(mock_cluster):
@@ -152,10 +153,10 @@ async def test_create_cluster_async(mock_cluster):
     respx.post("https://api.trixdb.com/v1/clusters").mock(
         return_value=Response(200, json=mock_cluster)
     )
-    
+
     async with AsyncTrix(api_key="test") as client:
         cluster = await client.clusters.create(name="Python Cluster")
-        
+
         assert cluster.id == "cluster_123"
 
 
@@ -166,9 +167,8 @@ async def test_list_clusters_async(mock_cluster_list):
     respx.get("https://api.trixdb.com/v1/clusters").mock(
         return_value=Response(200, json=mock_cluster_list)
     )
-    
+
     async with AsyncTrix(api_key="test") as client:
         clusters = await client.clusters.list()
-        
-        assert len(clusters.data) == 1
 
+        assert len(clusters.data) == 1

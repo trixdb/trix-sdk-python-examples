@@ -3,8 +3,7 @@
 import pytest
 import respx
 from httpx import Response
-
-from trix import Trix, AsyncTrix
+from trix import AsyncTrix, Trix
 
 
 @pytest.fixture
@@ -31,12 +30,11 @@ def mock_space_list(mock_space):
 # Synchronous Tests
 # =============================================================================
 
+
 @respx.mock
 def test_create_space_sync(mock_space):
     """Test creating a space synchronously."""
-    respx.post("https://api.trixdb.com/v1/spaces").mock(
-        return_value=Response(200, json=mock_space)
-    )
+    respx.post("https://api.trixdb.com/v1/spaces").mock(return_value=Response(200, json=mock_space))
 
     with Trix(api_key="test") as client:
         space = client.spaces.create(
@@ -67,10 +65,10 @@ def test_list_spaces_sync(mock_space_list):
     respx.get("https://api.trixdb.com/v1/spaces").mock(
         return_value=Response(200, json=mock_space_list)
     )
-    
+
     with Trix(api_key="test") as client:
         spaces = client.spaces.list()
-        
+
         assert len(spaces.data) == 1
 
 
@@ -81,13 +79,10 @@ def test_update_space_sync(mock_space):
     respx.patch("https://api.trixdb.com/v1/spaces/space_123").mock(
         return_value=Response(200, json=updated)
     )
-    
+
     with Trix(api_key="test") as client:
-        space = client.spaces.update(
-            "space_123",
-            description="Updated description"
-        )
-        
+        space = client.spaces.update("space_123", description="Updated description")
+
         assert space.description == "Updated description"
 
 
@@ -95,13 +90,12 @@ def test_update_space_sync(mock_space):
 # Asynchronous Tests
 # =============================================================================
 
+
 @respx.mock
 @pytest.mark.asyncio
 async def test_create_space_async(mock_space):
     """Test creating a space asynchronously."""
-    respx.post("https://api.trixdb.com/v1/spaces").mock(
-        return_value=Response(200, json=mock_space)
-    )
+    respx.post("https://api.trixdb.com/v1/spaces").mock(return_value=Response(200, json=mock_space))
 
     async with AsyncTrix(api_key="test") as client:
         space = await client.spaces.create(
@@ -119,9 +113,8 @@ async def test_list_spaces_async(mock_space_list):
     respx.get("https://api.trixdb.com/v1/spaces").mock(
         return_value=Response(200, json=mock_space_list)
     )
-    
+
     async with AsyncTrix(api_key="test") as client:
         spaces = await client.spaces.list()
-        
-        assert len(spaces.data) == 1
 
+        assert len(spaces.data) == 1
