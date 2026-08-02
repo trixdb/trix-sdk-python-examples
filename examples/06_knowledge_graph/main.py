@@ -90,9 +90,9 @@ def main() -> None:
         if path:
             print(f"   Path length: {len(path.path)} hops")
             print("   Path:")
-            for i, node in enumerate(path.path):
+            for i, hop in enumerate(path.path):
                 prefix = "   ---" if i == len(path.path) - 1 else "   |--"
-                print(f"   {prefix} {node}")
+                print(f"   {prefix} {hop}")
 
         # ======================================================================
         # NEIGHBORS
@@ -101,10 +101,7 @@ def main() -> None:
 
         neighbors = client.graph.neighbors(node_id=react.id)
 
-        print(
-            f"   React has {len(neighbors.incoming)} incoming, "
-            f"{len(neighbors.outgoing)} outgoing connections"
-        )
+        print(f"   React has {len(neighbors.neighbors)} connections")
 
         # ======================================================================
         # EXPAND
@@ -124,8 +121,8 @@ def main() -> None:
         print("\n7. Getting graph statistics...")
 
         stats = client.graph.get_stats()
-        print(f"   Total nodes: {stats.total_nodes}")
-        print(f"   Total edges: {stats.total_edges}")
+        print(f"   Total nodes: {stats.node_count}")
+        print(f"   Total edges: {stats.edge_count}")
 
         # ======================================================================
         # GET CONTEXT

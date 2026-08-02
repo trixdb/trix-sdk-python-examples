@@ -18,8 +18,8 @@ entities.{list, get, find_by_type, get_facts, merge}, plus enrichment.
 Run: python main.py
 """
 
-from trix import EnrichmentOperation, Trix
-from trix.types import Memory
+from trix import Trix
+from trix.types import EnrichmentOperation, Memory
 
 
 def create_source_memory(client: Trix) -> Memory:

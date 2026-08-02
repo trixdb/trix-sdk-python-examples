@@ -11,7 +11,8 @@ Run: python async_example.py
 
 import asyncio
 
-from trix import AsyncTrix, EnrichmentOperation
+from trix import AsyncTrix
+from trix.types import EnrichmentOperation
 
 
 async def read_knowledge(client: AsyncTrix, memory_id: str) -> None:

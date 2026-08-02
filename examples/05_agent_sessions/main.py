@@ -77,8 +77,8 @@ def main() -> None:
         )
 
         print(f"   Found {len(context.memories)} relevant memories:")
-        for mem in context.memories:
-            print(f"      - {mem.content[:50]}...")
+        for ctx_mem in context.memories:
+            print(f"      - {ctx_mem.content[:50]}...")
 
         # ======================================================================
         # LIST SESSIONS
