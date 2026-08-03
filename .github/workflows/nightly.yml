@@ -6,13 +6,33 @@ on:
     - cron: '0 2 * * *'
   workflow_dispatch:
 
+# Least privilege: read the repo, and open an issue on failure.
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   smoke-tests:
     runs-on: ubuntu-latest
     environment: nightly
 
+    # The examples import the sibling SDK from ../trix-sdk-python, so every
+    # run-step executes from the examples checkout where that path resolves.
+    defaults:
+      run:
+        working-directory: trix-sdk-python-examples
+
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Check the examples out next to the SDK so `../trix-sdk-python` resolves.
+          path: trix-sdk-python-examples
+
+      - name: Check out the SDK
+        uses: actions/checkout@v4
+        with:
+          repository: trixdb/trix-sdk-python
+          path: trix-sdk-python
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -25,8 +45,10 @@ jobs:
           version: "latest"
 
       - name: Install dependencies
+        # Install the SDK from the local sibling checkout so the smoke tests run
+        # against the real current SDK rather than a published PyPI release.
         run: |
-          uv pip install --system -e ".[dev,all]"
+          uv pip install --system -e ../trix-sdk-python -e ".[dev,all]"
 
       - name: Run smoke tests (mocked)
         run: |
@@ -51,4 +73,3 @@ jobs:
               body: `Nightly smoke tests failed on ${new Date().toISOString()}\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
               labels: ['bug', 'ci']
             })
-

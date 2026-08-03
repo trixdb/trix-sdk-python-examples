@@ -1,52 +1,72 @@
 name: SDK Compatibility
 
 on:
-  # Triggered when new SDK versions are released
+  # Triggered when a new SDK version is released (repository_dispatch sent from
+  # the trix-sdk-python repo). Pass the ref to test via client_payload.sdk_ref.
   repository_dispatch:
     types: [sdk-release]
-  # Manual trigger
+  # Manual trigger.
   workflow_dispatch:
     inputs:
-      sdk_version:
-        description: 'SDK version to test against'
+      sdk_ref:
+        description: 'trix-sdk-python git ref (branch, tag, or SHA) to test against'
         required: false
-        default: 'latest'
+        default: 'main'
+
+permissions:
+  contents: read
 
 jobs:
   compatibility:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        sdk-version: ["0.1.0", "0.1.1", "latest"]
+        python-version: ["3.11", "3.12"]
+
+    # The examples import the sibling SDK from ../trix-sdk-python, so every
+    # run-step executes from the examples checkout where that path resolves.
+    defaults:
+      run:
+        working-directory: trix-sdk-python-examples
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: trix-sdk-python-examples
 
-      - name: Set up Python
+      # "latest SDK" means the tip of a ref in the SDK repo. Resolve the ref
+      # from the dispatch payload, the manual input, or default to main.
+      - name: Resolve SDK ref
+        id: ref
+        run: echo "sdk_ref=${{ github.event.client_payload.sdk_ref || github.event.inputs.sdk_ref || 'main' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Check out the SDK @ ${{ steps.ref.outputs.sdk_ref }}
+        uses: actions/checkout@v4
+        with:
+          repository: trixdb/trix-sdk-python
+          ref: ${{ steps.ref.outputs.sdk_ref }}
+          path: trix-sdk-python
+
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
 
-      - name: Install dependencies with specific SDK version
+      - name: Install against the SDK
+        # Install the SDK from the checked-out ref so every example is exercised
+        # against that exact SDK source.
         run: |
-          if [ "${{ matrix.sdk-version }}" = "latest" ]; then
-            uv pip install --system trixdb
-          else
-            uv pip install --system "trixdb==${{ matrix.sdk-version }}"
-          fi
-          uv pip install --system -e ".[dev]"
+          uv pip install --system -e ../trix-sdk-python -e ".[dev,all]"
 
       - name: Run tests
         run: |
           pytest -v --tb=short
 
-      - name: Report compatibility
+      - name: Report incompatibility
         if: failure()
-        run: |
-          echo "::warning::Examples may not be compatible with SDK version ${{ matrix.sdk-version }}"
-
+        run: echo "::warning::Examples may not be compatible with trix-sdk-python @ ${{ steps.ref.outputs.sdk_ref }}"
