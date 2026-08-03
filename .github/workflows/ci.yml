@@ -13,8 +13,23 @@ jobs:
       matrix:
         python-version: ["3.11", "3.12"]
 
+    # The examples import the sibling SDK from ../trix-sdk-python, so every
+    # run-step executes from the examples checkout where that path resolves.
+    defaults:
+      run:
+        working-directory: trix-sdk-python-examples
+
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Check the examples out next to the SDK so `../trix-sdk-python` resolves.
+          path: trix-sdk-python-examples
+
+      - name: Check out the SDK
+        uses: actions/checkout@v4
+        with:
+          repository: trixdb/trix-sdk-python
+          path: trix-sdk-python
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -27,8 +42,10 @@ jobs:
           version: "latest"
 
       - name: Install dependencies
+        # Install the SDK from the local sibling checkout so CI tests against the
+        # real current SDK rather than a published PyPI release.
         run: |
-          uv pip install --system -e ".[dev,all]"
+          uv pip install --system -e ../trix-sdk-python -e ".[dev,all]"
 
       - name: Run linting
         run: |
@@ -46,7 +63,7 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v4
         with:
-          files: ./coverage.xml
+          files: ./trix-sdk-python-examples/coverage.xml
           fail_ci_if_error: false
 
   syntax-check:
@@ -61,5 +78,4 @@ jobs:
 
       - name: Check Python syntax
         run: |
-          python -m py_compile $(find . -name "*.py" -type f)
-
+          find . -name "*.py" -type f -exec python -m py_compile {} +
