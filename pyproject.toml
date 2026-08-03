@@ -53,6 +53,13 @@ Repository = "https://github.com/trixdb/trix-sdk-python-examples"
 where = ["."]
 include = ["examples*", "use_cases*", "recipes*"]
 
+# The SDK (dist name `trixdb`, imported as `trix`) is developed in the sibling
+# repo. Resolve it from there so the lockfile and installs track the real
+# current SDK. CI checks out trixdb/trix-sdk-python into ../trix-sdk-python
+# (see .github/workflows/ci.yml); the monorepo layout provides it locally.
+[tool.uv.sources]
+trixdb = { path = "../trix-sdk-python", editable = true }
+
 [tool.black]
 line-length = 100
 target-version = ["py311"]
