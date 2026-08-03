@@ -124,7 +124,7 @@ def main() -> None:
         config = client.search.get_config()
         print(f"   Default limit: {config.default_limit}")
         print(f"   Max limit: {config.max_limit}")
-        print(f"   Embedding dimensions: {config.embedding_dimensions}")
+        print(f"   Min similarity threshold: {config.min_similarity_threshold}")
 
         # ======================================================================
         # CLEANUP

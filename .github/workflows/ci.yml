@@ -37,7 +37,7 @@ jobs:
 
       - name: Run type checking
         run: |
-          mypy examples use_cases recipes --ignore-missing-imports
+          bash scripts/typecheck.sh
 
       - name: Run tests
         run: |

@@ -40,6 +40,7 @@ python examples/00_getting_started/main.py
 | 08 | [Clustering](examples/08_clustering/) | Automatic memory organization |
 | 09 | [Webhooks](examples/09_webhooks/) | Event subscriptions and handling |
 | 10 | [Advanced Patterns](examples/10_advanced_patterns/) | Error handling, retries, interceptors |
+| 11 | [Pipeline Presets](examples/11_pipeline_presets/) | 3-tier preset resolver, account/space defaults |
 
 Each example includes:
 - `main.py` - Synchronous version

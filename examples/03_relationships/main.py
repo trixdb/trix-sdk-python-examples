@@ -155,7 +155,7 @@ def main() -> None:
         result = client.relationships.reinforce_group(
             relationship_ids=[rel1.id, rel2.id], amount=0.05
         )
-        print(f"   Reinforced {result.updated_count} relationships")
+        print(f"   Reinforced {result.reinforced} relationships")
 
         # ======================================================================
         # CLEANUP

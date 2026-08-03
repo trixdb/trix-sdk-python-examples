@@ -106,8 +106,8 @@ def main() -> None:
         print("\n7. Getting memory statistics...")
 
         stats = client.memories.get_stats()
-        print(f"   Total memories: {stats.total_memories}")
-        print(f"   Total size: {stats.total_size_bytes} bytes")
+        print(f"   Total memories: {stats.total}")
+        print(f"   Total size: {stats.total_size} bytes")
 
         # ======================================================================
         # CONFIG - Get memory configuration

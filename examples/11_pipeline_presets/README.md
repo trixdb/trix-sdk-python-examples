@@ -54,7 +54,8 @@ trix pipeline create --file=./my-preset.json
 ## Run
 
 ```bash
-python examples/11_pipeline_presets/main.py
+python examples/11_pipeline_presets/main.py           # Synchronous
+python examples/11_pipeline_presets/async_example.py  # Asynchronous
 ```
 
 ## What to read next

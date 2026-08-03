@@ -65,11 +65,15 @@ target-version = "py311"
 select = ["E", "F", "I", "W"]
 
 [tool.mypy]
+# These are teaching examples, so type-checking is intentionally lenient:
+# full annotations are not required and the bodies of unannotated functions
+# are not checked. We still catch real mistakes (e.g. wrong attribute/method
+# names) in annotated code. See scripts/typecheck.sh for the per-directory
+# invocation the numeric example dirs require.
 python_version = "3.11"
-strict = true
-warn_return_any = true
+ignore_missing_imports = true
+explicit_package_bases = true
 warn_unused_configs = true
-disallow_untyped_defs = true
 
 [tool.pytest.ini_options]
 testpaths = ["examples", "use_cases", "recipes"]
@@ -77,6 +81,10 @@ asyncio_mode = "auto"
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests that require real API access",
+]
 
 [dependency-groups]
 dev = [

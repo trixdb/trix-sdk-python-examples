@@ -15,8 +15,9 @@ knowledge the server derives from them.
 Run: python main.py
 """
 
-from trix import EnrichmentOperation, Trix
+from trix import Trix
 from trix.exceptions import NotFoundError
+from trix.types import EnrichmentOperation
 
 
 class ResearchAssistant:

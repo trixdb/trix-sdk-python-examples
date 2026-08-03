@@ -70,7 +70,7 @@ async def main() -> None:
         test_results = await asyncio.gather(*test_tasks, return_exceptions=True)
 
         for wh, result in zip(webhooks, test_results):
-            if isinstance(result, Exception):
+            if isinstance(result, BaseException):
                 print(f"      - {wh.name}: Error")
             else:
                 print(f"      - {wh.name}: status={result.get('status_code')}")

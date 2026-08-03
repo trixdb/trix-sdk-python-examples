@@ -96,7 +96,7 @@ async def main() -> None:
             client.memories.get_stats(), client.memories.get_config()
         )
 
-        print(f"   Total memories: {stats.total_memories}")
+        print(f"   Total memories: {stats.total}")
         print(f"   Max content length: {config.max_content_length}")
 
         # ======================================================================
