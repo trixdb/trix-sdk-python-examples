@@ -31,7 +31,7 @@ def iterate_all_memories():
 async def iterate_all_memories_async():
     """Async iteration with automatic pagination."""
     async with AsyncTrix.from_env() as client:
-        async for memory in await client.memories.iter(page_size=100):
+        async for memory in client.memories.iter(page_size=100):
             print(f"Memory: {memory.id}")
 
 
@@ -115,9 +115,9 @@ async def parallel_pagination():
     async with AsyncTrix.from_env() as client:
         # Start multiple paginated queries
         tasks = [
-            collect_all(await client.memories.iter(tags=["important"])),
-            collect_all(await client.memories.iter(tags=["recent"])),
-            collect_all(await client.memories.iter(tags=["archived"])),
+            collect_all(client.memories.iter(tags=["important"])),
+            collect_all(client.memories.iter(tags=["recent"])),
+            collect_all(client.memories.iter(tags=["archived"])),
         ]
 
         important, recent, archived = await asyncio.gather(*tasks)
