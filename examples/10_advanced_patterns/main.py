@@ -52,8 +52,12 @@ def demonstrate_error_handling():
             client.memories.create(content="")  # Empty content
         except ValidationError as e:
             print(f"   ✓ ValidationError: {e.message}")
-            if e.errors:
-                for field, msg in e.errors.items():
+            # ValidationError has no `.errors`; the parsed error body is on
+            # `.response`. Field details, when present, sit under the envelope.
+            err = e.response.get("error") if isinstance(e.response, dict) else None
+            field_errors = err.get("errors") if isinstance(err, dict) else None
+            if isinstance(field_errors, dict):
+                for field, msg in field_errors.items():
                     print(f"     - {field}: {msg}")
         except TrixError as e:
             print(f"   Other error: {e}")

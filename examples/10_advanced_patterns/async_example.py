@@ -75,7 +75,7 @@ async def demonstrate_async_iteration():
         print("\n1. Async iteration...")
 
         count = 0
-        async for memory in await client.memories.iter(page_size=2):
+        async for memory in client.memories.iter(page_size=2):
             count += 1
             print(f"   - {memory.content[:30]}...")
             if count >= 5:
