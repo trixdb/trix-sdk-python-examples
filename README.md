@@ -41,6 +41,9 @@ python examples/00_getting_started/main.py
 | 09 | [Webhooks](examples/09_webhooks/) | Event subscriptions and handling |
 | 10 | [Advanced Patterns](examples/10_advanced_patterns/) | Error handling, retries, interceptors |
 | 11 | [Pipeline Presets](examples/11_pipeline_presets/) | 3-tier preset resolver, account/space defaults |
+| 12 | [Streaming Bot Runs](examples/12_streaming_runs/) | Live SSE bot runs, typed `BotRunStep` events (sync + async) |
+| 13 | [File Uploads & Streaming](examples/13_file_uploads/) | Multipart upload, signed URLs, binary audio streaming |
+| 14 | [Agent Orchestration](examples/14_agent_orchestration/) | Bots, crews, and workflows composed into a pipeline |
 
 Each example includes:
 - `main.py` - Synchronous version
@@ -66,7 +69,8 @@ Quick patterns for common tasks:
 - [Error Handling](recipes/error_handling.py) - Exception handling patterns
 - [Pagination](recipes/pagination.py) - Efficient iteration
 - [Retry Strategies](recipes/retry_strategies.py) - Handling transient failures
-- [Testing Patterns](recipes/testing_mock_patterns.py) - Mocking with respx
+- [Testing Patterns](recipes/testing_mock_patterns.py) - Mocking the wire with respx
+- [Testing with MockTrix](recipes/mock_client_testing.py) - The SDK's built-in in-memory client double
 
 ## Environment Variables
 
