@@ -79,3 +79,30 @@ jobs:
       - name: Check Python syntax
         run: |
           find . -name "*.py" -type f -exec python -m py_compile {} +
+
+  lock-check:
+    name: Lock Consistency
+    runs-on: ubuntu-latest
+    # uv.lock pins trixdb as an editable path source (../trix-sdk-python), so
+    # the check needs the SDK checked out as a sibling, same as the test job.
+    defaults:
+      run:
+        working-directory: trix-sdk-python-examples
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: trix-sdk-python-examples
+      - name: Check out the SDK
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: trixdb/trix-sdk-python
+          path: trix-sdk-python
+      - name: Install uv
+        uses: astral-sh/setup-uv@38f3f104447c67c051c4a08e39b64a148898af3a # v4
+        with:
+          version: "latest"
+      # Verifies the committed uv.lock still matches pyproject.toml so it can't
+      # silently rot. The test matrix still installs against dep ranges on
+      # purpose (cf. trix-workers#104); this is only a drift gate.
+      - name: Verify uv.lock matches pyproject.toml
+        run: uv lock --check
